@@ -1,11 +1,11 @@
 # Secure Login Demo: Enterprise 3-Tier Azure Infrastructure
 
-<img src="./assets/azure.png" width="40%" alt="Azure">
+<img src="/.assets/azure.png" width="40%" alt="Azure">
 
 
-<img src="./assets/terraform.png" width="40%" alt="Terraform">
+<img src="/.assets/terraform.png" width="40%" alt="Terraform">
 
-<img src="./assets/githubaction.png" width="40%" alt="github">
+<img src="/.assets/githubaction.png" width="40%" alt="github">
 
 Architected and provisioned **3-tier** enterprise cloud infrastructure on Azure using Terraform to host the **'secure-login-demo'** web ecosystem. Built to rigorous production-grade standards, the platform implements a strict Zero-Trust DevSecOps architecture using modern DevSecOps principles.
 
@@ -16,20 +16,8 @@ Architected and provisioned **3-tier** enterprise cloud infrastructure on Azure 
 
 ---
 
-## 🛠️ Technology & Tool Stack
+<img src="/.assets/arch.jpg" width="40%" alt="github">
 
-| Tool / Service | Category | Purpose in this Architecture |
-| :--- | :--- | :--- |
-| **Terraform** | Infrastructure as Code | Automates provisioning, tracks state, and ensures environment reproducibility. |
-| **Azure Application Gateway (WAF)** | Edge / Presentation | Acts as a public-facing reverse proxy with Web Application Firewall rules to block malicious traffic. |
-| **Azure VM** | Compute (Web & App) | Hosts Dockerized components across multiple Availability Zones for autoscaling and resilience. |
-| **Docker** | Containerization | Standardizes application runtimes across Web and API instances. |
-| **Azure Container Registry (ACR)** | Artifact Storage | Premium private registry for secure Docker image management with private endpoints. |
-| **Azure PostgreSQL Flexible Server** | Data Tier | Fully managed relational database configured with Zone-Redundant High Availability and a Read Replica. |
-| **Azure App Configuration & Key Vault** | Security & Governance | Centralizes environment variables, feature flags, and orchestrates zero-leak secret injection. |
-| **Azure NAT Gateway & Private DNS** | Networking | Directs secure outbound internet traffic for backend updates and controls internal FQDN routing. |
-
----
 
 ## 📂 Repository Architecture & Layout
 
