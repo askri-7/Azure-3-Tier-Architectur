@@ -1,0 +1,172 @@
+
+variable "virtual_network_location" {
+  type        = string
+  description = "Vnet location"
+}
+
+variable "address_space" {
+  type        = list(string)
+  description = "address space value"
+}
+
+variable "resource_group_name" {
+  type        = string
+  description = "resource group name"
+}
+
+variable "ddos_protection_plan" {
+  type = object({
+    enable = bool
+    id     = string
+  })
+  default     = null
+  description = "ddos_plan"
+}
+
+
+variable "dynamic_subnets" {
+  type = map(object({ 
+    cidr_block = string
+    
+    delegation = optional(object({
+      name    = string
+      service = string
+      actions = list(string)
+    }),null)
+    security_rules = optional(list(object({ name = string
+      priority               = number
+      direction              = string
+      access                 = string
+      protocol               = string
+      source_port_range      = string
+      destination_port_range = string
+      source_address_prefix  = string
+    destination_address_prefix = string })) , [])
+  }))
+  description = "map of dynamic subnets security rule block as dynamic var"
+}
+
+# key is the public ip name
+variable "pub_ips" {
+  type = map(object({
+    allocation         = string
+    sku                = string
+    label              = optional(string,null)
+  }))
+
+}
+
+variable "location" {
+  type = string
+}
+
+variable "vnet_name" {
+  type = string
+}
+
+variable "app_gateway_cidr_block" {
+  type =string
+  
+}
+variable "app_cidr_block" {
+  type = string
+}
+
+variable "postgres_cidr_block" {
+  type = string
+}
+variable "bastion_cidr_block" {
+  type = string
+}
+
+variable "private_cidr_block" {
+  type = string
+}
+variable "web_cidr_block" {
+  type = string
+}
+variable "web_security_rules" {
+  type = list(object({
+    name                       = string
+    priority                   = number
+    direction                  = string
+    access                     = string
+    protocol                   = string
+    source_port_range          = string
+    destination_port_range     = string
+    source_address_prefix      = string
+    destination_address_prefix = string
+  }))
+}
+variable "app_security_rules" {
+  type = list(object({
+    name                       = string
+    priority                   = number
+    direction                  = string
+    access                     = string
+    protocol                   = string
+    source_port_range          = string
+    destination_port_range     = string
+    source_address_prefix      = string
+    destination_address_prefix = string
+  }))
+}
+variable "gateway_security_rules" {
+  type = list(object({
+    name                       = string
+    priority                   = number
+    direction                  = string
+    access                     = string
+    protocol                   = string
+    source_port_range          = string
+    destination_port_range     = string
+    source_address_prefix      = string
+    destination_address_prefix = string
+  }))
+}
+variable "bastion_security_rules" {
+  type = list(object({
+    name                       = string
+    priority                   = number
+    direction                  = string
+    access                     = string
+    protocol                   = string
+    source_port_range          = string
+    destination_port_range     = string
+    source_address_prefix      = string
+    destination_address_prefix = string
+  }))
+}
+
+
+variable "postgres_security_rules" {
+  type = list(object({
+    name                       = string
+    priority                   = number
+    direction                  = string
+    access                     = string
+    protocol                   = string
+    source_port_range          = string
+    destination_port_range     = string
+    source_address_prefix      = string
+    destination_address_prefix = string
+  }))
+}
+variable "private_endpoint_security_rules" {
+  type = list(object({
+    name                       = string
+    priority                   = number
+    direction                  = string
+    access                     = string
+    protocol                   = string
+    source_port_range          = string
+    destination_port_range     = string
+    source_address_prefix      = string
+    destination_address_prefix = string
+  }))
+}
+
+variable "tags" {
+  type = map(string)
+}
+
