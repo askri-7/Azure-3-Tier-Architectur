@@ -1,11 +1,11 @@
 # Secure Login Demo: Enterprise 3-Tier Azure Infrastructure
 
-<img src="/.assets/azure.png" width="40%" alt="Azure">
+<img src="/.assets/azure.png" width="10%" alt="Azure">
 
 
-<img src="/.assets/terraform.png" width="40%" alt="Terraform">
+<img src="/.assets/terraform.png" width="10%" alt="Terraform">
 
-<img src="/.assets/githubaction.png" width="40%" alt="github">
+<img src="/.assets/githubaction.png" width="10%" alt="github">
 
 Architected and provisioned **3-tier** enterprise cloud infrastructure on Azure using Terraform to host the **'secure-login-demo'** web ecosystem. Built to rigorous production-grade standards, the platform implements a strict Zero-Trust DevSecOps architecture using modern DevSecOps principles.
 
@@ -16,7 +16,7 @@ Architected and provisioned **3-tier** enterprise cloud infrastructure on Azure 
 
 ---
 
-<img src="/.assets/arch.jpg" width="40%" alt="github">
+<img src="/.assets/arch.jpg" width="10%" alt="github">
 
 
 ## 📂 Repository Architecture & Layout
