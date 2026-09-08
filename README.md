@@ -9,10 +9,17 @@
 Architected and provisioned **3-tier** enterprise cloud infrastructure on Azure using Terraform to host the **'secure-login-demo'** web ecosystem. Built to rigorous production-grade standards, the platform implements a strict Zero-Trust DevSecOps architecture using modern DevSecOps principles.
 
 ## 🚀 Key Architectural Principles
-* **Network Segmentation:** Isolated subnets bounded by strict Network Security Groups (NSGs) ensuring zero direct access from the internet to backend or database layers.
-* **Least Privilege Access:** Absolute removal of long-lived access keys, relying entirely on Azure Role-Based Access Control (RBAC) and System-Assigned Managed Identities.
-* **Centralized Secret & Config Management:** Complete decoupling of configuration from code using Azure App Configuration and Azure Key Vault with secure Key Vault References.
-
+1. 🔐 Least-privilege RBAC
+2. 🪪 Managed identities / OIDC
+3. 🔑 Key Vault + secret lifecycle
+4. 🌐 Private networking and NSGs
+5. 🗄️ PostgreSQL security/HA
+6. 🐳 ACR and container security
+7. ⚖️ Application Gateway/WAF/load balancing
+8. 📊 Monitoring and auditing
+9. 🏗️ Terraform module boundaries and state security
+10. 🔄 Rotation, revocation, backup and recovery
+11. 🚀 CI/CD and immutable deployments
 ---
 
 <img src="/.assets/arch.jpg" width="100%" alt="github">
