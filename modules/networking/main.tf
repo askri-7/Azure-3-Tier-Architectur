@@ -1,4 +1,15 @@
-# make a vnet with ddos var plan
+/*
+ * Network Module
+ * This module responsible for creating and configuring  all networking components:
+ * - Virtual Network with subnets
+ * - Network Security Groups
+ * - Bastion Host
+ * - NAt gateway
+ */
+
+
+#  a vnet with ddos var plan
+
 resource "azurerm_virtual_network" "vnet" {
   name                = var.vnet_name
   location            = var.virtual_network_location

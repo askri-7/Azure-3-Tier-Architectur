@@ -1,3 +1,10 @@
+/*
+this module is reponsible for
+- routing app gateway with vnet 
+- the 7 th layer of osi
+
+*/
+
 resource "azurerm_public_ip" "appgw" {
   name                = "${var.vnet_name}-appgw-pip"
   location            = var.location

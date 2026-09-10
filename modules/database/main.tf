@@ -1,3 +1,11 @@
+/*
+this module responsible for 
+- provisionning database
+- database configuration
+- database backup
+*/
+
+
 resource "azurerm_postgresql_flexible_server" "main" {
   name                   = var.postgres_name
   resource_group_name    = var.resource_group_name

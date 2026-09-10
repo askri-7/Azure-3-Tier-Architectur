@@ -1,3 +1,9 @@
+/*
+this module responsible for 
+- configuring private dns zone 
+- private link in a vritual network
+*/
+
 resource "azurerm_private_dns_zone" "postgres" {
   name                = var.private_dns_zone_name
   resource_group_name = var.resource_group_name
