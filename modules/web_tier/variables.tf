@@ -7,9 +7,11 @@ variable "location" {
   description = "location of both nic + vm"
 
 }
+
 variable "web_subnet_id" {
   type = string
 }
+
 variable "vm_metadata" {
   type = object({
     size           = string
@@ -25,8 +27,15 @@ variable "os_disk" {
     storage_account_type = string
 
   })
-  description = "os_disk configuration"
+  
 }
+variable "appgw_backend_pool_id" {
+  type = string
+}
+variable "web_acr_id" {
+  type = string
+}
+
 
 variable "source_image" {
   type = object({
@@ -63,7 +72,7 @@ variable "tags" {
 }
 
 
-variable "cloud_init" {
+variable "web_cloud_init" {
   type        = string
   default     = null
   description = "Base64-encoded cloud-init data"

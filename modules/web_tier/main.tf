@@ -1,3 +1,10 @@
+
+
+
+locals {
+  ip_configuartion_name =  "${var.vnet_name}-ipconf"
+}
+
 # Network Interface Card Configuration
 resource "azurerm_network_interface" "nic" {
   name                = "${var.vm_name}-nic"
@@ -5,9 +12,9 @@ resource "azurerm_network_interface" "nic" {
   resource_group_name = var.resource_group_name
 
   ip_configuration {
-    name                          = local.ip_conf_name
+    name                          = "web-ip-configuration"
     subnet_id                     = var.web_subnet_id
-    private_ip_address_allocation = local.ip_conf_allocation
+    private_ip_address_allocation = var.web_ip_conf_allocation
   }
 
   tags = var.tags
@@ -16,7 +23,7 @@ resource "azurerm_network_interface" "nic" {
 # Attach NIC to Application Gateway Backend Pool
 resource "azurerm_network_interface_application_gateway_backend_address_pool_association" "appgw" {
   network_interface_id    = azurerm_network_interface.nic.id
-  ip_configuration_name   = local.ip_conf_name
+  ip_configuration_name   = "web-ip-configuration"
   backend_address_pool_id = var.appgw_backend_pool_id
 }
 
@@ -30,8 +37,8 @@ resource "azurerm_user_assigned_identity" "identity" {
 
 # Grant AcrPull role to the User-Assigned Identity
 resource "azurerm_role_assignment" "acr_pull" {
-  count                = var.acr_id != null ? 1 : 0
-  scope                = var.acr_id
+  count                = var.web_acr_id != null ? 1 : 0
+  scope                = var.web_acr_id
   role_definition_name = "AcrPull"
   principal_id         = azurerm_user_assigned_identity.identity.principal_id
 }
@@ -56,7 +63,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
     identity_ids = [azurerm_user_assigned_identity.identity.id]
   }
 
-  custom_data = var.cloud_init
+  custom_data = var.web_cloud_init
 
   # Authentication via Public SSH Key
   admin_ssh_key {
