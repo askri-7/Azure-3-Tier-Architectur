@@ -2,7 +2,7 @@
 
 <div style="display: flex; align-items: center; gap: 15px;">
   <img src="/.assets/azure.png" width="10%" alt="Azure">
-  <img src="/.assets/terraform.png" width="10%" alt="Terraform">
+  <img src="/.assets/terra.png" width="10%" alt="Terraform">
   <img src="/.assets/githubaction.png" width="10%" alt="github">
 </div>
 
