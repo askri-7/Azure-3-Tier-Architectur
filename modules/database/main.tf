@@ -19,6 +19,13 @@ resource "azurerm_postgresql_flexible_server" "main" {
   sku_name                      = var.sku_postgres
   storage_mb                    = var.storage_mb
   public_network_access_enabled = false
-  depends_on                    = [var.private_dns_zone_link]
+  
   tags                          = var.tags
+}
+
+resource "azurerm_postgresql_flexible_server_database" "main" {
+  name      = var.db_name
+  server_id = azurerm_postgresql_flexible_server.main.id
+  charset   = "UTF8"
+  collation = "en_US.utf8"
 }

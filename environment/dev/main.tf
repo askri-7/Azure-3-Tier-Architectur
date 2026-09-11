@@ -127,7 +127,8 @@ module "database" {
   db_name = var.db_name
 
   private_dns_zone_id   = module.private_dns.zone_ids["postgres"]
-  private_dns_zone_link = module.private_dns.link_ids["postgres"]
+  
+  depends_on = [module.private_dns]
 
   tags = var.tags
 

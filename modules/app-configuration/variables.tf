@@ -25,9 +25,7 @@ variable "purge_protection_enabled" {
   default = false
 }
 
-variable "app_config_sku" {
-  type = string
-}
+
 
 
 variable "configuration_settings" {

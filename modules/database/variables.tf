@@ -56,9 +56,7 @@ variable "postgres_name" {
   type = string
 }
 
-variable "private_dns_zone_link" {
-  type = string
-}
+
 variable "tags" {
   type = map(string)
 

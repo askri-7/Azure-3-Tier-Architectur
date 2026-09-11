@@ -243,9 +243,7 @@ variable "app_cloud_init_path" {
   type = string
 }
 
-variable "acr_id" {
-  type = string
-}
+
 
 variable "app_vm_metadata" {
   type = object({
