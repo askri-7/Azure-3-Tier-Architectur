@@ -14,6 +14,9 @@ output "web_subnet_id" {
 output "app_subnet_id" {
   value = azurerm_subnet.app.id
 }
+output "private_endpoints_subnet_id" {
+  value = azurerm_subnet.private_endpoints.id
+}
 
 output "postgres_subnet_id" {
   value = azurerm_subnet.postgres.id

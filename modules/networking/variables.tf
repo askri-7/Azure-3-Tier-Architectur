@@ -1,15 +1,15 @@
 
 variable "location" {
-  type        = string
+  type = string
 }
 
 variable "address_space" {
-  type        = list(string)
-  
+  type = list(string)
+
 }
 
 variable "resource_group_name" {
-  type        = string
+  type = string
 }
 
 variable "ddos_protection_plan" {
@@ -27,8 +27,8 @@ variable "vnet_name" {
 }
 
 variable "app_gateway_cidr_block" {
-  type =string
-  
+  type = string
+
 }
 variable "app_cidr_block" {
   type = string
@@ -102,19 +102,6 @@ variable "bastion_security_rules" {
 
 
 variable "postgres_security_rules" {
-  type = list(object({
-    name                       = string
-    priority                   = number
-    direction                  = string
-    access                     = string
-    protocol                   = string
-    source_port_range          = string
-    destination_port_range     = string
-    source_address_prefix      = string
-    destination_address_prefix = string
-  }))
-}
-variable "private_endpoint_security_rules" {
   type = list(object({
     name                       = string
     priority                   = number

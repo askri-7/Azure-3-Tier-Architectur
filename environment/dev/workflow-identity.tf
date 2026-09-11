@@ -13,11 +13,11 @@ resource "azurerm_role_assignment" "role" {
 }
 
 resource "azurerm_federated_identity_credential" "cred" {
-  for_each  = var.federated_subjects
+  for_each            = var.federated_subjects
   resource_group_name = data.azurerm_resource_group.rg.name
-  name      = each.key
-  audience  = [var.audience_name]
-  issuer    = var.issuer_url
-  parent_id = azurerm_user_assigned_identity.msi.id
-  subject   = each.value
+  name                = each.key
+  audience            = [var.audience_name]
+  issuer              = var.issuer_url
+  parent_id           = azurerm_user_assigned_identity.msi.id
+  subject             = each.value
 }

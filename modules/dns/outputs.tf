@@ -1,8 +1,8 @@
-output "postgres_dns_zone_id" {
-  value = azurerm_private_dns_zone.postgres.id
+output "zone_ids" {
+  value       = { for k, z in azurerm_private_dns_zone.zone : k => z.id }
+  description = "Map of zone key -> private DNS zone ID"
 }
 
-
-output "dsn_zone_network_link" {
-  value = azurerm_private_dns_zone_virtual_network_link.postgres.id
-  }
+output "zone_names" {
+  value = { for k, z in azurerm_private_dns_zone.zone : k => z.name }
+}

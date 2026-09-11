@@ -235,34 +235,6 @@ resource "azurerm_subnet_network_security_group_association" "bastion" {
   network_security_group_id = azurerm_network_security_group.bastion.id
 
 }
-resource "azurerm_network_security_group" "private_endpoints" {
-  name                = "${var.vnet_name}-private-endpoints-nsg"
-  location            = azurerm_virtual_network.vnet.location
-  resource_group_name = var.resource_group_name
-
-  dynamic "security_rule" {
-    for_each = var.private_endpoint_security_rules
-
-    content {
-      name                       = security_rule.value.name
-      priority                   = security_rule.value.priority
-      direction                  = security_rule.value.direction
-      access                     = security_rule.value.access
-      protocol                   = security_rule.value.protocol
-      source_port_range          = security_rule.value.source_port_range
-      destination_port_range     = security_rule.value.destination_port_range
-      source_address_prefix      = security_rule.value.source_address_prefix
-      destination_address_prefix = security_rule.value.destination_address_prefix
-    }
-  }
-
-  tags = var.tags
-}
-
-resource "azurerm_subnet_network_security_group_association" "private_endpoints" {
-  subnet_id                 = azurerm_subnet.private_endpoints.id
-  network_security_group_id = azurerm_network_security_group.private_endpoints.id
-}
 
 # NAT Gateway Provides outbound internet connectivity for private subnets
 resource "azurerm_nat_gateway" "main" {

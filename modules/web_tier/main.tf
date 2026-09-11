@@ -71,7 +71,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
   # Authentication via Public SSH Key
   admin_ssh_key {
-    username   = var.web_cloud_init
+    username   = var.web_vm_metadata.admin_username
     public_key = var.web_ssh_public_key
   }
 

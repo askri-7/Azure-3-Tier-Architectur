@@ -29,13 +29,12 @@ module "networking" {
 
   ## define each subnet security rules
 
-  web_security_rules              = var.web_security_rules
-  app_security_rules              = var.app_security_rules
-  gateway_security_rules          = var.gateway_security_rules
-  postgres_security_rules         = var.postgres_security_rules
-  bastion_security_rules          = var.bastion_security_rules
-  private_endpoint_security_rules = var.private_endpoint_security_rules
-  tags                            = var.tags
+  web_security_rules      = var.web_security_rules
+  app_security_rules      = var.app_security_rules
+  gateway_security_rules  = var.gateway_security_rules
+  postgres_security_rules = var.postgres_security_rules
+  bastion_security_rules  = var.bastion_security_rules
+  tags                    = var.tags
 
 }
 
@@ -46,7 +45,7 @@ module "gateway" {
   resource_group_name   = var.resource_group_name
   domain_name_label     = var.domain_name_label
   app_gateway_subnet_id = module.networking.app_gateway_subnet_id
-  sku_gateway = var.sku_gateway
+  sku_gateway           = var.sku_gateway
   tags                  = var.tags
 }
 
@@ -109,17 +108,6 @@ module "acr" {
   tags                = var.tags
 }
 
-module "dns" {
-  source = "../../modules/dns"
-
-  vnet_id               = module.networking.vnet_id
-  vnet_name             = local.vnet_name
-  resource_group_name   = data.azurerm_resource_group.rg.name
-  private_dns_zone_name = local.private_dns_zone_name
-  tags                  = var.tags
-
-
-}
 
 module "database" {
   source              = "../../modules/database"
@@ -146,4 +134,36 @@ module "database" {
 
 
 
+}
+module "private_dns" {
+  source              = "../../modules/dns"
+  zones               = local.private_dns_zones
+  vnet_id             = module.networking.vnet_id
+  vnet_name           = local.vnet_name
+  resource_group_name = data.azurerm_resource_group.rg.name
+  tags                = var.tags
+}
+
+module "keyvault_pe" {
+  source              = "../../modules/private_endpoints"
+  name                = "${local.key_vault_name}-pe"
+  location            = var.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  subnet_id           = module.networking.private_endpoints_subnet_id
+  target_resource_id  = module.keyvault.key_vault_id
+  subresource_name    = "vault"
+  dns_zone_ids        = [module.private_dns.zone_ids["key_vault"]]
+  tags                = var.tags
+}
+
+module "acr_pe" {
+  source              = "../../modules/private_endpoints"
+  name                = "${local.acr_name}-pe"
+  location            = var.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  subnet_id           = module.networking.private_endpoints_subnet_id
+  target_resource_id  = module.acr.acr_id
+  subresource_name    = "registry"
+  dns_zone_ids        = [module.private_dns.zone_ids["acr"]]
+  tags                = var.tags
 }

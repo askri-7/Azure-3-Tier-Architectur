@@ -21,8 +21,8 @@ variable "sku" {
 
 
 variable "purge_protection_enabled" {
-  type        = bool
-  default     = false
+  type    = bool
+  default = false
 }
 
 variable "app_config_sku" {
@@ -47,6 +47,6 @@ variable "key_vault_references" {
 }
 
 variable "tags" {
-  type        = map(string)
- 
+  type = map(string)
+
 }
