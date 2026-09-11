@@ -9,7 +9,11 @@ locals {
   key_vault_name          = "${var.naming.project}-${var.naming.env}-kv"
   acr_name                = "${var.naming.project}-${var.naming.env}-acr"
   postgres_name           = "${var.naming.project}-${var.naming.env}-pg"
-  private_dns_zone_name   = "${local.postgres_name}.private.postgres.database.azure.com"
 
+  private_dns_zones = {
+    postgres  = "${local.postgres_name}.private.postgres.database.azure.com"
+    key_vault = "${local.key_vault_name}.privatelink.vaultcore.azure.net"
+    acr       = "${local.acr_name}.privatelink.azurecr.io"
+  }
 
 }

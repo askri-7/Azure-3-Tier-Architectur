@@ -126,8 +126,8 @@ module "database" {
 
   db_name = var.db_name
 
-  private_dns_zone_id   = module.dns.postgres_dns_zone_id
-  private_dns_zone_link = module.dns.dsn_zone_network_link
+  private_dns_zone_id   = module.private_dns.zone_ids["postgres"]
+  private_dns_zone_link = module.private_dns.link_ids["postgres"]
 
   tags = var.tags
 
@@ -145,8 +145,8 @@ module "private_dns" {
 }
 
 module "keyvault_pe" {
-  source              = "../../modules/private_endpoints"
-  name                = "${local.key_vault_name}-pe"
+  source              = "../../modules/private-endpoint"
+  private_endpoint_name                 = "${local.key_vault_name}-pe"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg.name
   subnet_id           = module.networking.private_endpoints_subnet_id
@@ -157,8 +157,8 @@ module "keyvault_pe" {
 }
 
 module "acr_pe" {
-  source              = "../../modules/private_endpoints"
-  name                = "${local.acr_name}-pe"
+  source              = "../../modules/private-endpoint"
+  private_endpoint_name = "${local.acr_name}-pe"
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg.name
   subnet_id           = module.networking.private_endpoints_subnet_id
