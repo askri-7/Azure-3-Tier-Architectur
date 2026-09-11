@@ -1,25 +1,31 @@
 variable "vnet_name" {
-  type        = string
-  description = "Virtual network name prefix"
+  type = string
+
 }
 
 variable "location" {
-  type        = string
-  description = "Azure region for deployment"
+  type = string
+
 }
 
 variable "resource_group_name" {
-  type        = string
-  description = "Resource group name"
+  type = string
+
 }
 
 variable "app_gateway_subnet_id" {
-  type        = string
-  description = "Subnet ID from networking module (azurerm_subnet.app_gateway.id)"
+  type = string
+
+}
+variable "domain_name_label" {
+  type = string
 }
 
 variable "tags" {
-  type        = map(string)
-  default     = {}
-  description = "Tags to apply to gateway resources"
+  type = map(string)
+
+}
+
+variable "sku_gateway" {
+  type = string
 }

@@ -1,19 +1,23 @@
-variable "vnet_name" {
+variable "acr_name" {
   type = string
-
-}
-
-variable "vnet_id" {
-  type = string
-
 }
 
 variable "resource_group_name" {
   type = string
+
 }
-variable "private_dns_zone_name" {
+
+variable "location" {
+  type = string
+
+}
+
+variable "sku_acr" {
   type = string
 }
+
+
 variable "tags" {
   type = map(string)
+
 }

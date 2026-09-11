@@ -10,7 +10,8 @@ resource "azurerm_public_ip" "appgw" {
   location            = var.location
   resource_group_name = var.resource_group_name
   allocation_method   = "Static"
-  sku                 = "Standard"
+  domain_name_label   = var.domain_name_label
+  sku                 = var.sku_gateway
   tags                = var.tags
 }
 
@@ -30,8 +31,8 @@ resource "azurerm_application_gateway" "main" {
   tags                = var.tags
 
   sku {
-    name     = "Standard"
-    tier     = "Standard"
+    name     = var.sku_gateway
+    tier     = var.sku_gateway
     capacity = 2
   }
 

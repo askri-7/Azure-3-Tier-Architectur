@@ -16,9 +16,9 @@ resource "azurerm_postgresql_flexible_server" "main" {
   administrator_login    = var.admin_username
   administrator_password = var.admin_password
 
-  sku_name   = var.sku_name
-  storage_mb = var.storage_mb
+  sku_name                      = var.sku_postgres
+  storage_mb                    = var.storage_mb
   public_network_access_enabled = false
-
-  tags = var.tags
+  depends_on                    = [var.private_dns_zone_link]
+  tags                          = var.tags
 }

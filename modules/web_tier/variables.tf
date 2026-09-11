@@ -12,7 +12,7 @@ variable "web_subnet_id" {
   type = string
 }
 
-variable "vm_metadata" {
+variable "web_vm_metadata" {
   type = object({
     size           = string
     admin_username = string
@@ -20,24 +20,24 @@ variable "vm_metadata" {
   })
 }
 
-variable "os_disk" {
+variable "web_os_disk" {
   type = object({
-    
+
     caching              = string
     storage_account_type = string
 
   })
-  
+
 }
 variable "appgw_backend_pool_id" {
   type = string
 }
-variable "web_acr_id" {
+variable "acr_id" {
   type = string
 }
 
 
-variable "source_image" {
+variable "web_source_image" {
   type = object({
     publisher = string
     offer     = string
@@ -48,11 +48,11 @@ variable "source_image" {
 }
 
 
-variable "ssh_public_key" {
+variable "web_ssh_public_key" {
   type = string
 }
 
-variable "boot_diagnostics" {
+variable "web_boot_diagnostics" {
   type = object({
     enabled             = bool
     storage_account_uri = optional(string)
@@ -64,7 +64,7 @@ variable "boot_diagnostics" {
   description = "boot diagnostics configuration"
 }
 
-variable "vm_name" {
+variable "web_vm_name" {
   type = string
 }
 variable "tags" {

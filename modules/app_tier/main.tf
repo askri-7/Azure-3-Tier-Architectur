@@ -1,4 +1,10 @@
-
+/*
+ * Compute Module
+ * This module creates either frontend or backend compute resources with:
+ * - VM for application hosting
+ * -internal LB for backend
+ * - Managed identity for secure authentication
+ */
 
 
 # 1. User-Assigned Identity for App VM
@@ -11,9 +17,16 @@ resource "azurerm_user_assigned_identity" "app" {
 
 # 2. ACR Pull Role Assignment
 resource "azurerm_role_assignment" "acr_pull" {
-  count                = var.web_acr_id != null ? 1 : 0
-  scope                = var.web_acr_id
+  count                = var.acr_id != null ? 1 : 0
+  scope                = var.acr_id
   role_definition_name = "AcrPull"
+  principal_id         = azurerm_user_assigned_identity.app.principal_id
+}
+# Grant Key Vault Secrets User permission to the App VM identity
+resource "azurerm_role_assignment" "kv_secrets_user" {
+  count                = var.key_vault_id != null ? 1 : 0
+  scope                = var.key_vault_id
+  role_definition_name = "Key Vault Secrets User"
   principal_id         = azurerm_user_assigned_identity.app.principal_id
 }
 
@@ -59,11 +72,11 @@ resource "azurerm_lb_rule" "ilb" {
 
 
 locals {
-  ip_configuration_name = "${var.vm_name}-internalconf"
+  ip_configuration_name = "${var.app_vm_name}-internalconf"
 }
 # 4. App VM Network Interface
 resource "azurerm_network_interface" "nic" {
-  name                = "${var.vm_name}-nic"
+  name                = "${var.app_vm_name}-nic"
   location            = var.location
   resource_group_name = var.resource_group_name
 
@@ -85,12 +98,12 @@ resource "azurerm_network_interface_backend_address_pool_association" "ilb" {
 
 # 6. Linux VM (App API + Containerized Redis)
 resource "azurerm_linux_virtual_machine" "app" {
-  name                            = var.vm_name
+  name                            = var.app_vm_name
   resource_group_name             = var.resource_group_name
   location                        = var.location
-  size                            = var.vm_metadata.size
-  admin_username                  = var.vm_metadata.admin_username
-  computer_name                   = var.vm_metadata.computer_name
+  size                            = var.app_vm_metadata.size
+  admin_username                  = var.app_vm_metadata.admin_username
+  computer_name                   = var.app_vm_metadata.computer_name
   disable_password_authentication = true
 
   network_interface_ids = [
@@ -103,21 +116,21 @@ resource "azurerm_linux_virtual_machine" "app" {
   }
 
   admin_ssh_key {
-    username   = var.vm_metadata.admin_username
-    public_key = var.ssh_public_key
+    username   = var.app_vm_metadata.admin_username
+    public_key = var.app_ssh_public_key
   }
 
   os_disk {
-    name                 = "${var.vm_name}-osdisk"
-    caching              = var.os_disk.caching
-    storage_account_type = var.os_disk.storage_account_type
+    name                 = "${var.app_vm_name}-osdisk"
+    caching              = var.app_os_disk.caching
+    storage_account_type = var.app_os_disk.storage_account_type
   }
 
   source_image_reference {
-    publisher = var.source_image.publisher
-    offer     = var.source_image.offer
-    sku       = var.source_image.sku
-    version   = var.source_image.version
+    publisher = var.app_source_image.publisher
+    offer     = var.app_source_image.offer
+    sku       = var.app_source_image.sku
+    version   = var.app_source_image.version
   }
 
   custom_data = var.app_cloud_init
@@ -127,10 +140,10 @@ resource "azurerm_linux_virtual_machine" "app" {
 
 
   dynamic "boot_diagnostics" {
-    for_each = var.boot_diagnostics.enabled ? [1] : []
+    for_each = var.app_boot_diagnostics.enabled ? [1] : []
 
     content {
-      storage_account_uri = var.boot_diagnostics.storage_account_uri
+      storage_account_uri = var.app_boot_diagnostics.storage_account_uri
     }
   }
 }

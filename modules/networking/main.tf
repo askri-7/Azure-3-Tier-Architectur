@@ -12,18 +12,18 @@
 
 resource "azurerm_virtual_network" "vnet" {
   name                = var.vnet_name
-  location            = var.virtual_network_location
+  location            = var.location
   resource_group_name = var.resource_group_name
   address_space       = var.address_space # private ip adress range
 
   # configure ddos protection
-    dynamic "ddos_protection_plan" {
-        for_each = var.ddos_protection_plan != null ? [var.ddos_protection_plan] : []
-        content {
-          enable = ddos_protection_plan.value.enable
-          id     = ddos_protection_plan.value.id
-        }
+  dynamic "ddos_protection_plan" {
+    for_each = var.ddos_protection_plan != null ? [var.ddos_protection_plan] : []
+    content {
+      enable = ddos_protection_plan.value.enable
+      id     = ddos_protection_plan.value.id
     }
+  }
 
   tags = var.tags
 }
@@ -85,11 +85,11 @@ resource "azurerm_subnet" "private_endpoints" {
 #nsg  
 resource "azurerm_network_security_group" "web" {
 
-  name                =  "${var.vnet_name}-web-nsg"
+  name                = "${var.vnet_name}-web-nsg"
   location            = azurerm_virtual_network.vnet.location
   resource_group_name = var.resource_group_name
   #skip CKV_AZURE_160 allow http on 80 to redirect later
- 
+
   dynamic "security_rule" { # security_rule is the itterator
     for_each = var.web_security_rules
     content {
@@ -115,11 +115,11 @@ resource "azurerm_subnet_network_security_group_association" "web" {
 
 resource "azurerm_network_security_group" "app" {
 
-  name                =  "${var.vnet_name}-app-nsg"
+  name                = "${var.vnet_name}-app-nsg"
   location            = azurerm_virtual_network.vnet.location
   resource_group_name = var.resource_group_name
   #skip CKV_AZURE_160 allow http on 80 to redirect later
- 
+
   dynamic "security_rule" { # security_rule is the itterator
     for_each = var.app_security_rules
     content {
@@ -147,11 +147,11 @@ resource "azurerm_subnet_network_security_group_association" "app" {
 
 resource "azurerm_network_security_group" "gateway" {
 
-  name                =  "${var.vnet_name}-gateway-nsg"
+  name                = "${var.vnet_name}-gateway-nsg"
   location            = azurerm_virtual_network.vnet.location
   resource_group_name = var.resource_group_name
   #skip CKV_AZURE_160 allow http on 80 to redirect later
- 
+
   dynamic "security_rule" { # security_rule is the itterator
     for_each = var.gateway_security_rules
     content {
@@ -177,11 +177,11 @@ resource "azurerm_subnet_network_security_group_association" "gateway" {
 
 resource "azurerm_network_security_group" "postgres" {
 
-  name                =  "${var.vnet_name}-postgres-nsg"
+  name                = "${var.vnet_name}-postgres-nsg"
   location            = azurerm_virtual_network.vnet.location
   resource_group_name = var.resource_group_name
   #skip CKV_AZURE_160 allow http on 80 to redirect later
- 
+
   dynamic "security_rule" { # security_rule is the itterator
     for_each = var.postgres_security_rules
     content {
@@ -208,11 +208,11 @@ resource "azurerm_subnet_network_security_group_association" "postgres" {
 
 resource "azurerm_network_security_group" "bastion" {
 
-  name                =  "${var.vnet_name}-bastion-nsg"
+  name                = "${var.vnet_name}-bastion-nsg"
   location            = azurerm_virtual_network.vnet.location
   resource_group_name = var.resource_group_name
   #skip CKV_AZURE_160 allow http on 80 to redirect later
- 
+
   dynamic "security_rule" { # security_rule is the itterator
     for_each = var.bastion_security_rules
     content {

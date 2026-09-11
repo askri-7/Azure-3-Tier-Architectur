@@ -1,17 +1,15 @@
 
-variable "virtual_network_location" {
+variable "location" {
   type        = string
-  description = "Vnet location"
 }
 
 variable "address_space" {
   type        = list(string)
-  description = "address space value"
+  
 }
 
 variable "resource_group_name" {
   type        = string
-  description = "resource group name"
 }
 
 variable "ddos_protection_plan" {
@@ -23,42 +21,6 @@ variable "ddos_protection_plan" {
   description = "ddos_plan"
 }
 
-
-variable "dynamic_subnets" {
-  type = map(object({ 
-    cidr_block = string
-    
-    delegation = optional(object({
-      name    = string
-      service = string
-      actions = list(string)
-    }),null)
-    security_rules = optional(list(object({ name = string
-      priority               = number
-      direction              = string
-      access                 = string
-      protocol               = string
-      source_port_range      = string
-      destination_port_range = string
-      source_address_prefix  = string
-    destination_address_prefix = string })) , [])
-  }))
-  description = "map of dynamic subnets security rule block as dynamic var"
-}
-
-# key is the public ip name
-variable "pub_ips" {
-  type = map(object({
-    allocation         = string
-    sku                = string
-    label              = optional(string,null)
-  }))
-
-}
-
-variable "location" {
-  type = string
-}
 
 variable "vnet_name" {
   type = string
