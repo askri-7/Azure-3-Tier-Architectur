@@ -1,0 +1,41 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+packages:
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+  - docker.io
+  - docker-compose-v2
+
+write_files:
+  - path: /etc/docker/daemon.json
+    permissions: "0644"
+    content: |
+      {
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      }
+  - path: /usr/local/sbin/prepare-app-volumes.sh
+    permissions: "0755"
+    content: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+      install -d -m 0755 /opt/app /opt/app/config /opt/app/data /opt/app/logs
+      install -d -m 0755 /opt/app/compose
+      install -d -m 0755 /opt/app/compose/redis-data
+      install -d -m 0755 /var/lib/docker
+
+runcmd:
+  - systemctl enable --now docker
+  - /usr/local/sbin/prepare-app-volumes.sh
+  - usermod -aG docker ${admin_username}
+  - systemctl restart docker
+  - docker version
+  - docker compose version || true
+
+final_message: "App VM Docker bootstrap completed. Compose and application directories are on the OS disk."

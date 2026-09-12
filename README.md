@@ -45,6 +45,7 @@ The app VM can run Docker Compose for backend services such as the API and Redis
 - NAT Gateway for app subnet outbound connectivity.
 - Azure Bastion for administrative access.
 - User assigned identities for the app runtime, infrastructure pipeline, image pipeline, migration pipeline, and secret rotation pipeline.
+- Cloud-init bootstrap scripts that install Docker on both VMs.
 
 ## Repository Layout
 
@@ -77,6 +78,19 @@ PostgreSQL password authentication is disabled. Application and migration access
 - `secret-rotation.yml`: creates a new Key Vault secret version using the rotation identity.
 
 The application image pipeline builds and publishes the image. A separate deployment command is still required to make the app VM pull and run that new image.
+
+## VM Storage and Cloud-init
+
+The web and app VMs are bootstrapped by `scripts/web-cloud-init.yaml` and
+`scripts/app-cloud-init.yaml`. Both scripts install Docker, enable the Docker
+service, and create application directories under `/opt`.
+
+No managed data disk is currently attached to either VM. Docker and the
+application directories therefore use the OS disk. This is suitable for
+development bootstrap, but data stored there is lost if the OS disk or VM is
+replaced. The Redis data directory is also on the OS disk. Add and mount a
+managed data disk before treating application or Redis data as durable
+production state.
 
 ## Hosted Runner Network Model
 

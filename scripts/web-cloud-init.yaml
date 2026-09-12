@@ -1,0 +1,39 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+packages:
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+  - docker.io
+  - docker-compose-v2
+
+write_files:
+  - path: /etc/docker/daemon.json
+    permissions: "0644"
+    content: |
+      {
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "10m",
+          "max-file": "3"
+        }
+      }
+  - path: /usr/local/sbin/prepare-web-volumes.sh
+    permissions: "0755"
+    content: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+      install -d -m 0755 /opt/web /opt/web/config /opt/web/data /opt/web/logs
+      install -d -m 0755 /var/lib/docker
+
+runcmd:
+  - systemctl enable --now docker
+  - /usr/local/sbin/prepare-web-volumes.sh
+  - usermod -aG docker ${admin_username}
+  - systemctl restart docker
+  - docker version
+  - docker compose version || true
+
+final_message: "Web VM Docker bootstrap completed. Application directories are on the OS disk."

@@ -250,13 +250,15 @@ variable "web_cloud_init" {
 }
 
 variable "web_cloud_init_path" {
-  type = string
+  type    = string
+  default = "../../scripts/web-cloud-init.yaml"
 }
 
 ## app tier ####
 
 variable "app_cloud_init_path" {
-  type = string
+  type    = string
+  default = "../../scripts/app-cloud-init.yaml"
 }
 
 

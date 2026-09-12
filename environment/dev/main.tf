@@ -59,11 +59,13 @@ module "web_tier" {
   web_os_disk           = var.web_os_disk
   appgw_backend_pool_id = module.gateway.backend_address_pool_id
   acr_id                = module.acr.acr_id
-  web_cloud_init        = base64encode(templatefile(var.web_cloud_init_path, {}))
-  web_source_image      = var.web_source_image
-  web_ssh_public_key    = var.web_ssh_public_key
-  web_boot_diagnostics  = var.web_boot_diagnostics
-  tags                  = var.tags
+  web_cloud_init = base64encode(templatefile(var.web_cloud_init_path, {
+    admin_username = var.web_vm_metadata.admin_username
+  }))
+  web_source_image     = var.web_source_image
+  web_ssh_public_key   = var.web_ssh_public_key
+  web_boot_diagnostics = var.web_boot_diagnostics
+  tags                 = var.tags
 
 }
 module "keyvault" {
@@ -81,12 +83,14 @@ module "keyvault" {
 
 }
 module "app_tier" {
-  source                  = "../../modules/app_tier"
-  app_vm_name             = local.app_vm_name
-  location                = var.location
-  resource_group_name     = data.azurerm_resource_group.rg.name
-  vnet_name               = local.vnet_name
-  app_cloud_init          = base64encode(templatefile(var.app_cloud_init_path, {}))
+  source              = "../../modules/app_tier"
+  app_vm_name         = local.app_vm_name
+  location            = var.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  vnet_name           = local.vnet_name
+  app_cloud_init = base64encode(templatefile(var.app_cloud_init_path, {
+    admin_username = var.app_vm_metadata.admin_username
+  }))
   app_vm_metadata         = var.app_vm_metadata
   app_subnet_id           = module.networking.app_subnet_id
   key_vault_id            = module.keyvault.key_vault_id
