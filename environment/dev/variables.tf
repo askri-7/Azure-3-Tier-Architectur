@@ -4,6 +4,12 @@ variable "location" {
   type = string
 }
 
+variable "subscription_id" {
+  type        = string
+  default     = null
+  description = "Azure subscription ID. Defaults to ARM_SUBSCRIPTION_ID when omitted."
+}
+
 variable "storage_account_name" {
   type = string
 }

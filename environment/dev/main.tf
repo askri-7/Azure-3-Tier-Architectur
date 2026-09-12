@@ -126,8 +126,8 @@ module "database" {
 
   db_name = var.db_name
 
-  private_dns_zone_id   = module.private_dns.zone_ids["postgres"]
-  
+  private_dns_zone_id = module.private_dns.zone_ids["postgres"]
+
   depends_on = [module.private_dns]
 
   tags = var.tags
@@ -146,25 +146,25 @@ module "private_dns" {
 }
 
 module "keyvault_pe" {
-  source              = "../../modules/private-endpoint"
-  private_endpoint_name                 = "${local.key_vault_name}-pe"
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg.name
-  subnet_id           = module.networking.private_endpoints_subnet_id
-  target_resource_id  = module.keyvault.key_vault_id
-  subresource_name    = "vault"
-  dns_zone_ids        = [module.private_dns.zone_ids["key_vault"]]
-  tags                = var.tags
+  source                = "../../modules/private-endpoint"
+  private_endpoint_name = "${local.key_vault_name}-pe"
+  location              = var.location
+  resource_group_name   = data.azurerm_resource_group.rg.name
+  subnet_id             = module.networking.private_endpoints_subnet_id
+  target_resource_id    = module.keyvault.key_vault_id
+  subresource_name      = "vault"
+  dns_zone_ids          = [module.private_dns.zone_ids["key_vault"]]
+  tags                  = var.tags
 }
 
 module "acr_pe" {
-  source              = "../../modules/private-endpoint"
+  source                = "../../modules/private-endpoint"
   private_endpoint_name = "${local.acr_name}-pe"
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg.name
-  subnet_id           = module.networking.private_endpoints_subnet_id
-  target_resource_id  = module.acr.acr_id
-  subresource_name    = "registry"
-  dns_zone_ids        = [module.private_dns.zone_ids["acr"]]
-  tags                = var.tags
+  location              = var.location
+  resource_group_name   = data.azurerm_resource_group.rg.name
+  subnet_id             = module.networking.private_endpoints_subnet_id
+  target_resource_id    = module.acr.acr_id
+  subresource_name      = "registry"
+  dns_zone_ids          = [module.private_dns.zone_ids["acr"]]
+  tags                  = var.tags
 }
