@@ -1,52 +1,97 @@
-# Secure Login Demo: Enterprise 3-Tier Azure Infrastructure
+# Azure Three Tier Infrastructure
 
-<div style="display: flex; align-items: center; gap: 15px;">
-  <img src="/.assets/azure.png" width="10%" alt="Azure">
-  <img src="/.assets/terra.png" width="10%" alt="Terraform">
-  <img src="/.assets/githubaction.png" width="10%" alt="github">
-</div>
+Terraform infrastructure for a development Azure deployment with separate web, application, and database tiers.
 
-Architected and provisioned **3-tier** enterprise cloud infrastructure on Azure using Terraform to host the **'secure-login-demo'** web ecosystem. Built to rigorous production-grade standards, the platform implements a strict Zero-Trust DevSecOps architecture using modern DevSecOps principles.
+## Current Architecture
 
-## 🚀 Key Architectural Principles
-1. 🔐 Least-privilege RBAC
-2. 🪪 Managed identities / OIDC
-3. 🔑 Key Vault + secret lifecycle
-4. 🌐 Private networking and NSGs
-5. 🗄️ PostgreSQL security/HA
-6. 🐳 ACR and container security
-7. ⚖️ Application Gateway/WAF/load balancing
-8. 📊 Monitoring and auditing
-9. 🏗️ Terraform module boundaries and state security
-10. 🔄 Rotation, revocation, backup and recovery
-11. 🚀 CI/CD and immutable deployments
----
-
-<img src="/.assets/arch.jpg" width="100%" alt="github">
-
-
-## 📂 Repository Architecture & Layout
-
-This project isolates reusable infrastructure components (**Modules**) from live configuration environments (**Live Inventory**). State files are intended to be managed strictly within the environment directories.
+This repository currently creates one Azure Virtual Network with dedicated subnets. It is not yet a hub and spoke topology.
 
 ```text
-secure-login-demo-infra/
-├── modules/                        # Reusable Blueprints (No state is managed here)
-│   ├── network/                    # VNet, Subnets, Private DNS, and NAT Gateway
-│   ├── security/                   # NSGs, Key Vault, App Configuration, and RBAC roles
-│   ├── shared_services/            # Azure Container Registry (Premium SKU with Private Endpoints)
-│   ├── gateway/                    # Application Gateway with WAF configuration
-│   ├── web_tier/                   # Frontend Virtual Machine Scale Set & Internal Load Balancer
-│   ├── app_tier/                   # Backend API Virtual Machine Scale Set 
-│   └── database/                   # Azure PostgreSQL Flexible Server (Primary + Read Replica)
-│
-└── environments/                   # Live Implementations (Where 'terraform apply' runs)
-    ├── dev/                        # Development environment deployment configurations
-
-    │
-    └── prod/                       # Production environment deployment configurations
-
+Internet
+   |
+   v
+Application Gateway public IP
+   |
+   v
+Web VM in the web subnet
+   |
+   v
+Internal Load Balancer
+   |
+   v
+App VM in the app subnet
+   |                  \
+   |                   +--> Azure Container Registry
+   |                   +--> Azure Key Vault
+   v
+PostgreSQL Flexible Server
 ```
 
----
+The web VM is only the web tier. It does not need database access or Key Vault access. The app VM is the backend runtime and uses its user assigned managed identity to pull images, read required application secrets, and authenticate to PostgreSQL with Microsoft Entra ID.
 
+The app VM can run Docker Compose for backend services such as the API and Redis. Docker Compose runs on the app VM only. It does not span both VMs. The web VM has its own web tier deployment.
+
+## Azure Components
+
+- One virtual network with web, app, Application Gateway, PostgreSQL, Bastion, and private endpoint subnets.
+- Network Security Groups for the web, app, gateway, PostgreSQL, and Bastion subnets.
+- Application Gateway with a public static IP and HTTP listener.
+- One Linux web VM connected to the Application Gateway backend pool.
+- One Linux app VM behind an internal load balancer.
+- Azure PostgreSQL Flexible Server with Entra authentication and password authentication disabled.
+- Azure Container Registry with public access enabled for the current hosted runner model.
+- Azure Key Vault with RBAC authorization.
+- Private DNS zones and private endpoints for PostgreSQL, Key Vault, and ACR.
+- NAT Gateway for app subnet outbound connectivity.
+- Azure Bastion for administrative access.
+- User assigned identities for the app runtime, infrastructure pipeline, image pipeline, migration pipeline, and secret rotation pipeline.
+
+## Repository Layout
+
+```text
+environment/dev/       Live development environment and Terraform state backend
+modules/               Reusable Terraform modules
+scripts/               Database permission bootstrap SQL
+.github/workflows/     Infrastructure, image, migration, and rotation pipelines
+```
+
+The environment root composes the modules. The modules do not manage Terraform state independently.
+
+## Identity and Authentication
+
+GitHub Actions uses OIDC. Azure client secrets are not required for the pipelines.
+
+- Infrastructure identity: Terraform plan and apply, state access, and infrastructure changes.
+- Image identity: pushes application images to ACR.
+- App runtime identity: pulls images, reads approved Key Vault secrets, and connects to PostgreSQL.
+- Migration identity: runs Prisma migrations and seed operations.
+- Secret rotation identity: creates new Key Vault secret versions.
+
+PostgreSQL password authentication is disabled. Application and migration access use short lived Microsoft Entra access tokens. Database permissions are initialized with `scripts/setup_app_permissions.sql` by the configured PostgreSQL Entra administrator.
+
+## Pipelines
+
+- `iac-pipeline.yml`: Gitleaks, Checkov, Terraform formatting, TFLint, validate, plan, and protected apply.
+- `app-ci-cd.yml`: builds and scans an application image and pushes an immutable Git SHA tag to ACR.
+- `database-migration.yml`: runs Prisma migration and seed using the migration identity.
+- `secret-rotation.yml`: creates a new Key Vault secret version using the rotation identity.
+
+The application image pipeline builds and publishes the image. A separate deployment command is still required to make the app VM pull and run that new image.
+
+## Hosted Runner Network Model
+
+The migration and secret rotation workflows use GitHub hosted runners, not self hosted runners. PostgreSQL and Key Vault public network access are enabled so those workflows can reach Azure services.
+
+This is a development compromise. PostgreSQL firewall rules must allow the runner source addresses, and public access increases the network exposure. Entra authentication still applies and PostgreSQL passwords remain disabled. A private runner or another private execution service is preferred for production.
+
+## Validation
+
+Run from `environment/dev`:
+
+```bash
+terraform init
+terraform fmt -check -recursive
+terraform validate
+```
+
+Do not run `terraform apply` until the GitHub environment approvals, OIDC subjects, Terraform variables, firewall rules, and database identity grants are configured.

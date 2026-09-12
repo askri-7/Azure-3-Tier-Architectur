@@ -47,3 +47,32 @@ module "app_image_push_identity" {
     }
   }
 }
+
+module "db_migration_identity" {
+  source              = "../../modules/workflow-identity"
+  identity_name       = "${var.naming.project}-${var.naming.env}-migration-identity"
+  location            = var.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  tags                = var.tags
+  audience_name       = local.default_audience_name
+  issuer_url          = local.github_issuer_url
+  federated_subjects  = var.migration_federated_subjects
+  role_assignments    = {}
+}
+
+module "secret_rotation_identity" {
+  source              = "../../modules/workflow-identity"
+  identity_name       = "${var.naming.project}-${var.naming.env}-secret-rotation-identity"
+  location            = var.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  tags                = var.tags
+  audience_name       = local.default_audience_name
+  issuer_url          = local.github_issuer_url
+  federated_subjects  = var.secret_rotation_federated_subjects
+  role_assignments = {
+    keyvault_secrets_officer = {
+      role_name = "Key Vault Secrets Officer"
+      scope     = module.keyvault.key_vault_id
+    }
+  }
+}

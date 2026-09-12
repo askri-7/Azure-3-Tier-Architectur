@@ -11,3 +11,7 @@ output "client_id" {
   value = azurerm_user_assigned_identity.msi.client_id
 }
 
+output "identity_name" {
+  value = azurerm_user_assigned_identity.msi.name
+}
+

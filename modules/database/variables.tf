@@ -14,18 +14,6 @@ variable "postgres_subnet_id" {
   type = string
 }
 
-variable "admin_username" {
-  type = string
-
-
-}
-
-variable "admin_password" {
-  type      = string
-  sensitive = true
-
-}
-
 variable "postgres_version" {
   type = string
 

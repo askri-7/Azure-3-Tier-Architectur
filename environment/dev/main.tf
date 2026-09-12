@@ -74,7 +74,7 @@ module "keyvault" {
   tenant_id                     = data.azurerm_client_config.current.tenant_id
   sku_kv                        = var.sku_kv
   purge_protection_enabled      = var.purge_protection_enabled
-  public_network_access_enabled = var.public_network_access_enabled
+  public_network_access_enabled = true
   tags                          = var.tags
 
 
@@ -115,10 +115,6 @@ module "database" {
   resource_group_name = data.azurerm_resource_group.rg.name
   location            = var.location
   postgres_subnet_id  = module.networking.postgres_subnet_id
-
-  # Local Administrator Fallback Credentials
-  admin_username = var.admin_username
-  admin_password = var.admin_password
 
   # Database Engine Specs
   postgres_version = var.postgres_version

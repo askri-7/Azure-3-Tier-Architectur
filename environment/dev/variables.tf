@@ -35,6 +35,16 @@ variable "infra_federated_subjects" {
   type = map(string)
 }
 
+variable "migration_federated_subjects" {
+  type    = map(string)
+  default = {}
+}
+
+variable "secret_rotation_federated_subjects" {
+  type    = map(string)
+  default = {}
+}
+
 
 variable "role_assignments" {
   type = map(object({
@@ -328,18 +338,6 @@ variable "sku_acr" {
 
 ### database ###
 
-
-variable "admin_username" {
-  type = string
-
-
-}
-
-variable "admin_password" {
-  type      = string
-  sensitive = true
-
-}
 
 variable "postgres_version" {
   type = string

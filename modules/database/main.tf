@@ -12,16 +12,12 @@ resource "azurerm_postgresql_flexible_server" "postgres" {
   storage_mb                    = var.storage_mb
   public_network_access_enabled = true
 
-  # Required when password_auth_enabled = true
-  administrator_login    = var.admin_username
-  administrator_password = var.admin_password
-
   tags = var.tags
 
   # Enable Entra ID (Active Directory) Authentication
   authentication {
     active_directory_auth_enabled = true
-    password_auth_enabled         = true
+    password_auth_enabled         = false
     tenant_id                     = var.tenant_id
   }
 }

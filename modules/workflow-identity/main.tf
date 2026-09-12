@@ -1,3 +1,7 @@
+data "azurerm_resource_group" "rg" {
+  name = var.resource_group_name
+}
+
 resource "azurerm_user_assigned_identity" "msi" {
   location            = var.location
   name                = var.identity_name

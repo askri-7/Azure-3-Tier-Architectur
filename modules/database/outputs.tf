@@ -1,9 +1,9 @@
 output "server_id" {
-  value = azurerm_postgresql_flexible_server.main.id
+  value = azurerm_postgresql_flexible_server.postgres.id
 }
 
 output "server_fqdn" {
-  value = azurerm_postgresql_flexible_server.main.fqdn
+  value = azurerm_postgresql_flexible_server.postgres.fqdn
 }
 
 output "database_name" {

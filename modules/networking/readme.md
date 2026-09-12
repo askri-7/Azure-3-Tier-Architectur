@@ -1,99 +1,33 @@
-# Network Module
+# Networking Module
 
-## Purpose
+The networking module creates the single virtual network used by the development environment and separates the infrastructure into dedicated subnets.
 
-The Network module creates and manages the **core private network infrastructure** for the Azure application.
+## Resources
 
-Its responsibility is to define how the different application layers communicate while keeping private resources isolated from the public internet.
-
-## What We Created
-
-The module is responsible for:
-
-* **Virtual Network (VNet)** — provides the private IP address space for the application.
-* **Subnets** — separate the infrastructure into logical security zones.
-* **Network Security Groups (NSGs)** — control which traffic is allowed between and into the subnets.
-* **NAT Gateway** — provides controlled outbound internet access for private resources such as the backend without giving them a public IP.
-* **Network-level configuration** — handles the relationships between these components.
-
-## Our Network Structure
+- Virtual Network with configurable address space.
+- Application Gateway subnet.
+- Web subnet.
+- App subnet.
+- Delegated PostgreSQL subnet.
+- Azure Bastion subnet named `AzureBastionSubnet`.
+- Private endpoints subnet.
+- Separate Network Security Groups for web, app, gateway, PostgreSQL, and Bastion.
+- NAT Gateway and static public IP.
+- Bastion public IP and host.
 
 ```text
 VNet
-│
-├── Application Gateway Subnet
-│   └── Application Gateway
-│
-├── Web Subnet
-│   └── Frontend VM
-│
-├── App Subnet
-│   └── Backend VM
-│       └── NAT Gateway → Internet
-│
-├── PostgreSQL Subnet
-│   └── Azure PostgreSQL Flexible Server
-│
-├── Bastion Subnet
-│   └── Azure Bastion
-│
-└── Private Endpoints Subnet
-    └── Private Endpoints
+|
+|-- Application Gateway subnet
+|-- Web subnet        -> web VM
+|-- App subnet        -> app VM and internal load balancer
+|-- PostgreSQL subnet -> delegated PostgreSQL server
+|-- Bastion subnet    -> Azure Bastion
+`-- Private endpoints subnet
 ```
 
-The subnet separation creates clear boundaries between the different layers.
+The module creates one VNet. It does not create hub and spoke VNets, Azure Firewall, route tables, or peering.
 
-## Security Principle
+The NAT Gateway is associated with the app subnet. The Application Gateway receives public HTTP traffic and routes it to the web VM. The web VM reaches the app tier through the internal load balancer.
 
-The network follows a **private-by-default** approach.
-
-The public internet should reach the application through the **Application Gateway**, rather than directly accessing backend or database resources.
-
-```text
-Internet
-   │
-   ▼
-Application Gateway
-   │
-   ▼
-Private Application / Backend
-   │
-   ▼
-Private PostgreSQL
-```
-
-For outbound traffic, the backend can use the NAT Gateway:
-
-```text
-Backend VM
-    │
-    ▼
-NAT Gateway
-    │
-    ▼
-Internet
-```
-
-This means the backend does not need its own public IP just to communicate with external services.
-
-## Why This Is a Module
-
-The network is a separate infrastructure responsibility and is shared by the other components.
-
-Other modules consume its outputs instead of directly managing networking resources.
-
-For example:
-
-```text
-Network Module
-      │
-      ├── subnet IDs ──────► VM Module
-      │
-      ├── subnet IDs ──────► PostgreSQL Module
-      │
-      ├── VNet ID ─────────► DNS Module
-      │
-      └── Network IDs ─────► Application Gateway
-```
-
-This keeps the root Terraform configuration clean and makes the network reusable across environments.
+Security rules are supplied through variables so each environment can define its own allowed ports and address ranges. Review these rules before applying an environment.
