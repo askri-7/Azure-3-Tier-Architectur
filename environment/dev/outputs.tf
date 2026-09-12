@@ -1,12 +1,13 @@
-output "user_assinged_identity_id" {
-  value       = azurerm_user_assigned_identity.msi.id
-  description = "ID of the user-assigned managed identity."
+output "infra_user_client_id" {
+  value       = module.infra_ci_identity.client_id
+  
 }
 
-output "user_assinged_identity_principal_id" {
-  value       = azurerm_user_assigned_identity.msi.principal_id
-  description = "Principal ID of the user-assigned managed identity"
+output "app_client_id" {
+  value       = module.app_image_push_identity.client_id
+  
 }
-output "client_id" {
-  value = azurerm_user_assigned_identity.msi.client_id
+
+output "login_server" {
+  value = module.acr.login_server
 }
