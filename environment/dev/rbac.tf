@@ -10,7 +10,7 @@ module "infra_ci_identity" {
   tags                = var.tags
   audience_name       = local.default_audience_name
   issuer_url          = local.github_issuer_url
-  federated_subjects  = var.infra_federated_subjects   
+  federated_subjects  = var.infra_federated_subjects
   role_assignments = {
 
     deployment = {

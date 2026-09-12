@@ -4,7 +4,7 @@ resource "azurerm_postgresql_flexible_server" "postgres" {
   location            = var.location
   version             = var.postgres_version
 
-  
+
   delegated_subnet_id = var.postgres_subnet_id
   private_dns_zone_id = var.private_dns_zone_id
 
