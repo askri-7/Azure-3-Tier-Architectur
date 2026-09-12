@@ -27,15 +27,15 @@ variable "tags" {
 
 
 
-variable "federated_subjects" {
+variable "app_federated_subjects" {
   type = map(string)
 }
-variable "audience_name" {
-  type = string
+
+variable "infra_federated_subjects" {
+  type = map(string)
 }
-variable "issuer_url" {
-  type = string
-}
+
+
 variable "role_assignments" {
   type = map(object({
     role_name = string
@@ -305,14 +305,12 @@ variable "domain_name_label" {
 variable "sku_gateway" {
   type = string
 }
-## heyvault ##
+## keyvault ##
 
 variable "sku_kv" {
   type = string
 }
-variable "tenant_id" {
-  type = string
-}
+
 variable "purge_protection_enabled" {
   type    = bool
   default = false
@@ -364,4 +362,7 @@ variable "db_name" {
   type = string
 
 
+}
+variable "entra_admin_name" {
+  type = string
 }

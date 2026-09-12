@@ -55,7 +55,21 @@ variable "private_dns_zone_id" {
 variable "postgres_name" {
   type = string
 }
+variable "tenant_id" {
+  type        = string
+  description = "The Azure Entra ID Tenant ID"
+}
 
+variable "entra_admin_object_id" {
+  type        = string
+  description = "Object ID of the Entra ID user/group serving as DB Admin"
+}
+
+variable "entra_admin_name" {
+  type        = string
+  default     = "postgres-admin"
+  description = "Display name for the Entra ID Administrator"
+}
 
 variable "tags" {
   type = map(string)

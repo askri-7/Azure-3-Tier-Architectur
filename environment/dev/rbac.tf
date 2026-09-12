@@ -22,6 +22,10 @@ module "infra_ci_identity" {
       role_name = "Storage Blob Data Contributor"
       scope     = data.azurerm_storage_account.sta.id
     }
+    keyvault_secrets_officer = {
+      role_name = "Key Vault Secrets Officer"
+      scope     = module.keyvault.key_vault_id
+    }
 
   }
 }

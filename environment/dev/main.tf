@@ -2,7 +2,7 @@ data "azurerm_resource_group" "rg" {
   name = var.resource_group_name
 }
 
-
+data "azurerm_client_config" "current" {}
 data "azurerm_storage_account" "sta" {
   name                = var.storage_account_name
   resource_group_name = data.azurerm_resource_group.rg.name
@@ -71,7 +71,7 @@ module "keyvault" {
   key_vault_name                = local.key_vault_name
   location                      = var.location
   resource_group_name           = var.resource_group_name
-  tenant_id                     = var.tenant_id
+  tenant_id                     = data.azurerm_client_config.current.tenant_id
   sku_kv                        = var.sku_kv
   purge_protection_enabled      = var.purge_protection_enabled
   public_network_access_enabled = var.public_network_access_enabled
@@ -116,25 +116,27 @@ module "database" {
   location            = var.location
   postgres_subnet_id  = module.networking.postgres_subnet_id
 
+  # Local Administrator Fallback Credentials
   admin_username = var.admin_username
   admin_password = var.admin_password
 
+  # Database Engine Specs
   postgres_version = var.postgres_version
   sku_postgres     = var.sku_postgres
   storage_mb       = var.storage_mb
+  db_name          = var.db_name
 
+  # Entra ID (Active Directory) Integration
+  tenant_id             = data.azurerm_client_config.current.tenant_id
+  entra_admin_object_id = data.azurerm_client_config.current.object_id
+  entra_admin_name      = var.entra_admin_name
 
-  db_name = var.db_name
-
+  # Networking & DNS
   private_dns_zone_id = module.private_dns.zone_ids["postgres"]
-
-  depends_on = [module.private_dns]
 
   tags = var.tags
 
-
-
-
+  depends_on = [module.private_dns]
 }
 module "private_dns" {
   source              = "../../modules/dns"
