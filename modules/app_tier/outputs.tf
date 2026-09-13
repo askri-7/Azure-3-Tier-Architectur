@@ -11,3 +11,7 @@ output "identity_principal_id" {
 output "vm_id" {
   value = azurerm_linux_virtual_machine.app.id
 }
+
+output "private_ip_address" {
+	value = azurerm_network_interface.nic.private_ip_address
+}

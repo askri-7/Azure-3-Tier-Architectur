@@ -52,11 +52,6 @@ app_federated_subjects = {
   main = "repo:askri-7/secure-login-demo:ref:refs/heads/release/3tiervm"
 }
 
-# Deploy workflow invokes Run Command on the app VM.
-deploy_federated_subjects = {
-  dev = "repo:askri-7/Azure-3-Tier-Architectur:environment:dev"
-}
-
 # Secret rotation workflow — also defined in this infra repo.
 secret_rotation_federated_subjects = {
   rotation = "repo:askri-7/Azure-3-Tier-Architectur:environment:secret-rotation"
@@ -231,7 +226,7 @@ bastion_security_rules = [
     destination_address_prefix = "*"
   },
   {
-    name                       = "Allow-BastionHostComms-In"
+    name                       = "Allow-BastionHostComms-8080-In"
     priority                   = 130
     direction                  = "Inbound"
     access                     = "Allow"
@@ -242,8 +237,8 @@ bastion_security_rules = [
     destination_address_prefix = "VirtualNetwork"
   },
   {
-    name                       = "Allow-BastionHostComms-In"
-    priority                   = 130
+    name                       = "Allow-BastionHostComms-5701-In"
+    priority                   = 131
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "*"

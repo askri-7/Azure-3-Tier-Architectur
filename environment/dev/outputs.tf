@@ -13,10 +13,6 @@ output "app_runtime_identity_name" {
   description = "User assigned identity name used by the app VM for PostgreSQL Entra authentication."
 }
 
-output "deploy_identity_client_id" {
-  value = module.deploy_identity.client_id
-}
-
 output "secret_rotation_identity_client_id" {
   value       = module.secret_rotation_identity.client_id
   description = "Client ID used by the Key Vault rotation workflow."

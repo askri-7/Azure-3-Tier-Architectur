@@ -5,7 +5,6 @@ variable "resource_group_name" {
 variable "location" {
   type        = string
   description = "location of both nic + vm"
-
 }
 
 variable "web_subnet_id" {
@@ -22,20 +21,35 @@ variable "web_vm_metadata" {
 
 variable "web_os_disk" {
   type = object({
-
     caching              = string
     storage_account_type = string
-
   })
-
 }
+
 variable "appgw_backend_pool_id" {
   type = string
 }
+
 variable "acr_id" {
   type = string
 }
 
+variable "acr_login_server" {
+  type = string
+}
+
+variable "app_vm_private_ip" {
+  type = string
+}
+
+variable "domain_name" {
+  type = string
+}
+
+variable "image_tag" {
+  type    = string
+  default = "latest"
+}
 
 variable "web_source_image" {
   type = object({
@@ -46,7 +60,6 @@ variable "web_source_image" {
   })
   description = "source image configuration"
 }
-
 
 variable "web_ssh_public_key" {
   type = string
@@ -67,13 +80,7 @@ variable "web_boot_diagnostics" {
 variable "web_vm_name" {
   type = string
 }
+
 variable "tags" {
   type = map(string)
-}
-
-
-variable "web_cloud_init" {
-  type        = string
-  default     = null
-  description = "Base64-encoded cloud-init data"
 }

@@ -7,6 +7,13 @@
 
 locals {
   ip_configuartion_name = "${var.web_vm_name}-ipconf"
+  rendered_web_cloud_init = templatefile("${path.module}/../../scripts/web-cloud-init.yaml", {
+    admin_username    = var.web_vm_metadata.admin_username
+    acr_login_server  = var.acr_login_server
+    app_vm_private_ip = var.app_vm_private_ip
+    domain_name       = var.domain_name
+    image_tag         = var.image_tag
+  })
 }
 
 # Network Interface Card Configuration
@@ -67,7 +74,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
     identity_ids = [azurerm_user_assigned_identity.identity.id]
   }
 
-  custom_data = var.web_cloud_init
+  custom_data = base64encode(local.rendered_web_cloud_init)
 
   # Authentication via Public SSH Key
   admin_ssh_key {

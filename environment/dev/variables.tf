@@ -35,10 +35,6 @@ variable "infra_federated_subjects" {
   type = map(string)
 }
 
-variable "deploy_federated_subjects" {
-  type = map(string)
-}
-
 variable "secret_rotation_federated_subjects" {
   type    = map(string)
   default = {}
@@ -220,18 +216,6 @@ variable "web_boot_diagnostics" {
     enabled = false
   }
   description = "boot diagnostics configuration"
-}
-
-
-variable "web_cloud_init" {
-  type        = string
-  default     = null
-  description = "Base64-encoded cloud-init data"
-}
-
-variable "web_cloud_init_path" {
-  type    = string
-  default = "../../scripts/web-cloud-init.yaml"
 }
 
 ## app tier ####

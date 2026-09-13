@@ -20,20 +20,106 @@ write_files:
           "max-file": "3"
         }
       }
+
   - path: /usr/local/sbin/prepare-web-volumes.sh
     permissions: "0755"
     content: |
       #!/usr/bin/env bash
       set -euo pipefail
-      install -d -m 0755 /opt/web /opt/web/config /opt/web/data /opt/web/logs
+      install -d -m 0755 /opt/web/compose
       install -d -m 0755 /var/lib/docker
+
+  - path: /opt/web/compose/docker-compose.web.prod.yml
+    permissions: "0644"
+    content: |
+      services:
+        frontend:
+          image: $${ACR_LOGIN_SERVER}/$${FRONTEND_IMAGE_NAME:-frontend}:$${IMAGE_TAG:?IMAGE_TAG must be an immutable Git SHA}
+          restart: unless-stopped
+          environment:
+            BACKEND_HOST: $${APP_VM_PRIVATE_HOST:?APP_VM_PRIVATE_HOST is required}
+            BACKEND_PORT: $${APP_VM_PRIVATE_PORT:-3000}
+            DOMAIN_NAME: $${DOMAIN_NAME:?DOMAIN_NAME is required}
+          ports:
+            - "80:80"
+            - "443:443"
+          volumes:
+            - letsencrypt:/etc/letsencrypt:ro
+            - certbot-www:/var/www/certbot
+          deploy:
+            resources:
+              limits:
+                memory: 128M
+          logging:
+            driver: json-file
+            options:
+              max-size: "10m"
+              max-file: "3"
+
+        certbot-init:
+          image: certbot/certbot:latest
+          restart: "no"
+          environment:
+            DOMAIN_NAME: $${DOMAIN_NAME:?DOMAIN_NAME is required}
+          volumes:
+            - letsencrypt:/etc/letsencrypt
+          entrypoint: >
+            sh -c '
+            set -e;
+            mkdir -p /etc/letsencrypt/live/$$DOMAIN_NAME;
+            if [ -f "/etc/letsencrypt/live/$$DOMAIN_NAME/fullchain.pem" ]; then exit 0; fi;
+            openssl req -x509 -nodes -newkey rsa:2048 -days 1
+            -keyout /etc/letsencrypt/live/$$DOMAIN_NAME/privkey.pem
+            -out /etc/letsencrypt/live/$$DOMAIN_NAME/fullchain.pem
+            -subj "/CN=$$DOMAIN_NAME";
+            '
+
+        certbot:
+          image: certbot/certbot:latest
+          restart: unless-stopped
+          volumes:
+            - letsencrypt:/etc/letsencrypt
+            - certbot-www:/var/www/certbot
+          entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done;'"
+
+      volumes:
+        letsencrypt:
+        certbot-www:
+
+  - path: /opt/web/compose/.env
+    permissions: "0600"
+    content: |
+      ACR_LOGIN_SERVER=${acr_login_server}
+      FRONTEND_IMAGE_NAME=frontend
+      IMAGE_TAG=${image_tag}
+      APP_VM_PRIVATE_HOST=${app_vm_private_ip}
+      APP_VM_PRIVATE_PORT=3000
+      DOMAIN_NAME=${domain_name}
+
+  - path: /usr/local/sbin/deploy-web.sh
+    permissions: "0755"
+    content: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+
+      for i in $(seq 1 30); do
+        az login --identity && break
+        echo "Waiting for managed identity to become available... ($${i}/30)"
+        sleep 5
+      done
+
+      az acr login --name "$(echo ${acr_login_server} | cut -d'.' -f1)"
+
+      cd /opt/web/compose
+      docker compose --env-file .env -f docker-compose.web.prod.yml pull
+      docker compose --env-file .env -f docker-compose.web.prod.yml up -d
 
 runcmd:
   - systemctl enable --now docker
   - /usr/local/sbin/prepare-web-volumes.sh
   - usermod -aG docker ${admin_username}
   - systemctl restart docker
-  - docker version
-  - docker compose version || true
+  - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+  - /usr/local/sbin/deploy-web.sh
 
-final_message: "Web VM Docker bootstrap completed. Application directories are on the OS disk."
+final_message: "Web VM bootstrap and initial deploy completed."

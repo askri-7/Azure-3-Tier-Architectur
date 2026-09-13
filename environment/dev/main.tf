@@ -59,13 +59,13 @@ module "web_tier" {
   web_os_disk           = var.web_os_disk
   appgw_backend_pool_id = module.gateway.backend_address_pool_id
   acr_id                = module.acr.acr_id
-  web_cloud_init = base64encode(templatefile(var.web_cloud_init_path, {
-    admin_username = var.web_vm_metadata.admin_username
-  }))
-  web_source_image     = var.web_source_image
-  web_ssh_public_key   = var.web_ssh_public_key
-  web_boot_diagnostics = var.web_boot_diagnostics
-  tags                 = var.tags
+  acr_login_server      = module.acr.login_server
+  app_vm_private_ip     = module.app_tier.private_ip_address
+  domain_name           = "${var.domain_name_label}.${var.location}.cloudapp.azure.com"
+  web_source_image      = var.web_source_image
+  web_ssh_public_key    = var.web_ssh_public_key
+  web_boot_diagnostics  = var.web_boot_diagnostics
+  tags                  = var.tags
 
 }
 module "keyvault" {

@@ -4,7 +4,7 @@ resource "azurerm_postgresql_flexible_server" "postgres" {
   location            = var.location
   version             = var.postgres_version
 
-
+  public_network_access_enabled = false
   delegated_subnet_id = var.postgres_subnet_id
   private_dns_zone_id = var.private_dns_zone_id
 
@@ -18,6 +18,12 @@ resource "azurerm_postgresql_flexible_server" "postgres" {
     active_directory_auth_enabled = true
     password_auth_enabled         = false
     tenant_id                     = var.tenant_id
+  }
+  lifecycle {
+    ignore_changes = [
+      zone,
+      high_availability
+    ]
   }
 }
 

@@ -30,7 +30,7 @@ module "infra_ci_identity" {
   }
 }
 
-# new identity — app repo's pipeline, image push only
+# App repository pipeline identity: pushes images and redeploys both VMs.
 module "app_image_push_identity" {
   source              = "../../modules/workflow-identity"
   identity_name       = "${var.naming.project}-${var.naming.env}-app-identity"
@@ -45,22 +45,13 @@ module "app_image_push_identity" {
       role_name = "AcrPush"
       scope     = module.acr.acr_id
     }
-  }
-}
-
-module "deploy_identity" {
-  source              = "../../modules/workflow-identity"
-  identity_name       = local.deploy_identity_name
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg.name
-  tags                = var.tags
-  audience_name       = local.default_audience_name
-  issuer_url          = local.github_issuer_url
-  federated_subjects  = var.deploy_federated_subjects
-  role_assignments = {
-    vm_contributor = {
+    app_vm_contributor = {
       role_name = "Virtual Machine Contributor"
       scope     = module.app_tier.vm_id
+    }
+    web_vm_contributor = {
+      role_name = "Virtual Machine Contributor"
+      scope     = module.web_tier.vm_id
     }
   }
 }
