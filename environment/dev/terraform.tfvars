@@ -43,18 +43,18 @@ tags = {
 
 # Infra pipeline lives in the infra repo (this repo) and runs terraform plan/apply.
 infra_federated_subjects = {
-  main = "repo:askri-7/Azure-3-Tier-Architectur:ref:refs/heads/main"
-  dev  = "repo:askri-7/Azure-3-Tier-Architectur:environment:dev"
+  main = "repo:askri-7/Azure-3-Tier-Architecture:ref:refs/heads/main"
+  dev  = "repo:askri-7/Azure-3-Tier-Architecture:environment:dev"
 }
 
 # Image build/push pipeline lives in the APP repo (secure-login-demo).
 app_federated_subjects = {
-  main = "repo:askri-7/secure-login-demo:ref:refs/heads/release/3tiervm"
+  main = "repo:askri-7@247334802/secure-login-demo@1318658875:ref:refs/heads/release/3tiervm"
 }
 
 # Secret rotation workflow — also defined in this infra repo.
 secret_rotation_federated_subjects = {
-  rotation = "repo:askri-7/Azure-3-Tier-Architectur:environment:secret-rotation"
+  rotation = "repo:askri-7/Azure-3-Tier-Architecture:environment:secret-rotation"
 }
 
 ##############################################################################
