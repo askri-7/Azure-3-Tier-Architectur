@@ -17,14 +17,14 @@ resource "azurerm_user_assigned_identity" "app" {
 
 # 2. ACR Pull Role Assignment
 resource "azurerm_role_assignment" "acr_pull" {
-  count                = var.acr_id != null ? 1 : 0
+  
   scope                = var.acr_id
   role_definition_name = "AcrPull"
   principal_id         = azurerm_user_assigned_identity.app.principal_id
 }
 # Grant Key Vault Secrets User permission to the App VM identity
 resource "azurerm_role_assignment" "kv_secrets_user" {
-  count                = var.key_vault_id != null ? 1 : 0
+  
   scope                = var.key_vault_id
   role_definition_name = "Key Vault Secrets User"
   principal_id         = azurerm_user_assigned_identity.app.principal_id

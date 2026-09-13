@@ -11,7 +11,7 @@ resource "azurerm_public_ip" "appgw" {
   resource_group_name = var.resource_group_name
   allocation_method   = "Static"
   domain_name_label   = var.domain_name_label
-  sku                 = var.sku_gateway
+  sku                 = "Standard"
   tags                = var.tags
 }
 

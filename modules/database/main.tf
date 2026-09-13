@@ -10,7 +10,7 @@ resource "azurerm_postgresql_flexible_server" "postgres" {
 
   sku_name                      = var.sku_postgres
   storage_mb                    = var.storage_mb
-  public_network_access_enabled = true
+  
 
   tags = var.tags
 

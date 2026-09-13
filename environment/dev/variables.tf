@@ -46,16 +46,8 @@ variable "secret_rotation_federated_subjects" {
 }
 
 
-variable "role_assignments" {
-  type = map(object({
-    role_name = string
-    scope     = string
-  }))
-}
 
-variable "identity_name" {
-  type = string
-}
+
 
 
 ### networking ####
@@ -77,9 +69,6 @@ variable "ddos_protection_plan" {
 }
 
 
-variable "vnet_name" {
-  type = string
-}
 
 variable "app_gateway_cidr_block" {
   type = string
@@ -186,9 +175,6 @@ variable "private_endpoint_security_rules" {
 
 ### web tier ####
 
-variable "web_subnet_id" {
-  type = string
-}
 
 variable "web_vm_metadata" {
   type = object({
@@ -207,9 +193,6 @@ variable "web_os_disk" {
   })
 
 }
-variable "appgw_backend_pool_id" {
-  type = string
-}
 
 
 variable "web_source_image" {
@@ -225,6 +208,7 @@ variable "web_source_image" {
 
 variable "web_ssh_public_key" {
   type = string
+  sensitive = true
 }
 
 variable "web_boot_diagnostics" {
@@ -239,9 +223,6 @@ variable "web_boot_diagnostics" {
   description = "boot diagnostics configuration"
 }
 
-variable "web_vm_name" {
-  type = string
-}
 
 variable "web_cloud_init" {
   type        = string
@@ -274,6 +255,7 @@ variable "app_vm_metadata" {
 
 variable "app_ssh_public_key" {
   type = string
+  sensitive = true
 }
 variable "app_os_disk" {
   type = object({

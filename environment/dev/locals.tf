@@ -7,7 +7,7 @@ locals {
   app_vm_name             = "${var.naming.project}-${var.naming.env}-app-vm"
   api_health_request_path = "${var.domain_name_label}/api/health"
   key_vault_name          = "${var.naming.project}-${var.naming.env}-kv"
-  acr_name                = "${var.naming.project}-${var.naming.env}-acr"
+  acr_name                = "${var.naming.project}${var.naming.env}acr"
   postgres_name           = "${var.naming.project}-${var.naming.env}-pg"
 
   private_dns_zones = {
