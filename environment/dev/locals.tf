@@ -5,6 +5,7 @@ locals {
   vnet_name               = "${var.naming.project}-${var.naming.env}-vnet"
   web_vm_name             = "${var.naming.project}-${var.naming.env}-web-vm"
   app_vm_name             = "${var.naming.project}-${var.naming.env}-app-vm"
+  deploy_identity_name    = "${var.naming.project}-${var.naming.env}-deploy-identity"
   api_health_request_path = "${var.domain_name_label}/api/health"
   key_vault_name          = "${var.naming.project}-${var.naming.env}-kv"
   acr_name                = "${var.naming.project}${var.naming.env}acr"

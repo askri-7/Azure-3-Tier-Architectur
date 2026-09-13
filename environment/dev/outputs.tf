@@ -13,14 +13,8 @@ output "app_runtime_identity_name" {
   description = "User assigned identity name used by the app VM for PostgreSQL Entra authentication."
 }
 
-output "migration_identity_client_id" {
-  value       = module.db_migration_identity.client_id
-  description = "Client ID used by the database migration GitHub Actions workflow."
-}
-
-output "migration_identity_name" {
-  value       = module.db_migration_identity.identity_name
-  description = "Entra principal name used by the database migration workflow."
+output "deploy_identity_client_id" {
+  value = module.deploy_identity.client_id
 }
 
 output "secret_rotation_identity_client_id" {

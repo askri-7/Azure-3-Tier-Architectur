@@ -13,11 +13,27 @@ variable "app_subnet_id" {
 variable "app_vm_name" {
   type = string
 }
-variable "app_cloud_init" {
-  type = string
-}
 variable "acr_id" {
   type = string
+}
+variable "acr_login_server" {
+  type = string
+}
+variable "db_host" {
+  type = string
+}
+variable "db_name" {
+  type = string
+}
+variable "key_vault_uri" {
+  type = string
+}
+variable "frontend_url" {
+  type = string
+}
+variable "image_tag" {
+  type    = string
+  default = "latest"
 }
 variable "app_vm_metadata" {
   type = object({

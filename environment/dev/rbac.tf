@@ -48,16 +48,21 @@ module "app_image_push_identity" {
   }
 }
 
-module "db_migration_identity" {
+module "deploy_identity" {
   source              = "../../modules/workflow-identity"
-  identity_name       = "${var.naming.project}-${var.naming.env}-migration-identity"
+  identity_name       = local.deploy_identity_name
   location            = var.location
   resource_group_name = data.azurerm_resource_group.rg.name
   tags                = var.tags
   audience_name       = local.default_audience_name
   issuer_url          = local.github_issuer_url
-  federated_subjects  = var.migration_federated_subjects
-  role_assignments    = {}
+  federated_subjects  = var.deploy_federated_subjects
+  role_assignments = {
+    vm_contributor = {
+      role_name = "Virtual Machine Contributor"
+      scope     = module.app_tier.vm_id
+    }
+  }
 }
 
 module "secret_rotation_identity" {

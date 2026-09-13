@@ -83,14 +83,11 @@ module "keyvault" {
 
 }
 module "app_tier" {
-  source              = "../../modules/app_tier"
-  app_vm_name         = local.app_vm_name
-  location            = var.location
-  resource_group_name = data.azurerm_resource_group.rg.name
-  vnet_name           = local.vnet_name
-  app_cloud_init = base64encode(templatefile(var.app_cloud_init_path, {
-    admin_username = var.app_vm_metadata.admin_username
-  }))
+  source                  = "../../modules/app_tier"
+  app_vm_name             = local.app_vm_name
+  location                = var.location
+  resource_group_name     = data.azurerm_resource_group.rg.name
+  vnet_name               = local.vnet_name
   app_vm_metadata         = var.app_vm_metadata
   app_subnet_id           = module.networking.app_subnet_id
   key_vault_id            = module.keyvault.key_vault_id
@@ -99,6 +96,11 @@ module "app_tier" {
   app_source_image        = var.app_source_image
   app_ssh_public_key      = var.app_ssh_public_key
   acr_id                  = module.acr.acr_id
+  acr_login_server        = module.acr.login_server
+  db_host                 = module.database.server_fqdn
+  db_name                 = module.database.database_name
+  key_vault_uri           = module.keyvault.key_vault_uri
+  frontend_url            = "http://${var.domain_name_label}.${var.location}.cloudapp.azure.com"
   api_health_request_path = local.api_health_request_path
   tags                    = var.tags
 

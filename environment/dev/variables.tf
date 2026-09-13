@@ -35,9 +35,8 @@ variable "infra_federated_subjects" {
   type = map(string)
 }
 
-variable "migration_federated_subjects" {
-  type    = map(string)
-  default = {}
+variable "deploy_federated_subjects" {
+  type = map(string)
 }
 
 variable "secret_rotation_federated_subjects" {
@@ -207,7 +206,7 @@ variable "web_source_image" {
 
 
 variable "web_ssh_public_key" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -237,13 +236,6 @@ variable "web_cloud_init_path" {
 
 ## app tier ####
 
-variable "app_cloud_init_path" {
-  type    = string
-  default = "../../scripts/app-cloud-init.yaml"
-}
-
-
-
 variable "app_vm_metadata" {
   type = object({
     size           = string
@@ -254,7 +246,7 @@ variable "app_vm_metadata" {
 
 
 variable "app_ssh_public_key" {
-  type = string
+  type      = string
   sensitive = true
 }
 variable "app_os_disk" {

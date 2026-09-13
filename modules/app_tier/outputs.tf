@@ -7,3 +7,7 @@ output "identity_principal_id" {
 	value       = azurerm_user_assigned_identity.app.principal_id
 	description = "Object ID of the application VM managed identity."
 }
+
+output "vm_id" {
+  value = azurerm_linux_virtual_machine.app.id
+}

@@ -10,22 +10,22 @@
 # 1. General / naming
 ##############################################################################
 
-location            = "francecentral"                 # <CHANGE_ME> pick your Azure region
-resource_group_name = "isra-rg-01"        # must already exist
-storage_account_name = "terrafstorageaccount01"    # must already exist (see backend.tf)
+location             = "francecentral"          # <CHANGE_ME> pick your Azure region
+resource_group_name  = "isra-rg-01"             # must already exist
+storage_account_name = "terrafstorageaccount01" # must already exist (see backend.tf)
 
 # subscription_id is optional here — it falls back to ARM_SUBSCRIPTION_ID.
 # Only set it if you want it pinned explicitly in tfvars instead of an env var.
 # subscription_id = "<CHANGE_ME-subscription-guid>"
 
 naming = {
-  project = "internship"    # short project code, used to build resource names
+  project = "internship" # short project code, used to build resource names
   env     = "dev"
 }
 
 tags = {
   project     = "secure-login-demo"
-  environment         = "dev"
+  environment = "dev"
   owner       = "tmtrack"
   managed_by  = "terraform"
 }
@@ -44,6 +44,7 @@ tags = {
 # Infra pipeline lives in the infra repo (this repo) and runs terraform plan/apply.
 infra_federated_subjects = {
   main = "repo:askri-7/Azure-3-Tier-Architectur:ref:refs/heads/main"
+  dev  = "repo:askri-7/Azure-3-Tier-Architectur:environment:dev"
 }
 
 # Image build/push pipeline lives in the APP repo (secure-login-demo).
@@ -51,14 +52,14 @@ app_federated_subjects = {
   main = "repo:askri-7/secure-login-demo:ref:refs/heads/release/3tiervm"
 }
 
-# Migration workflow (database-migration.yml) — also defined in this infra repo.
-migration_federated_subjects = {
-  main = "repo:askri-7/Azure-3-Tier-Architectur:ref:refs/heads/main"
+# Deploy workflow invokes Run Command on the app VM.
+deploy_federated_subjects = {
+  dev = "repo:askri-7/Azure-3-Tier-Architectur:environment:dev"
 }
 
 # Secret rotation workflow — also defined in this infra repo.
 secret_rotation_federated_subjects = {
-  main = "repo:askri-7/Azure-3-Tier-Architectur:ref:refs/heads/main"
+  rotation = "repo:askri-7/Azure-3-Tier-Architectur:environment:secret-rotation"
 }
 
 ##############################################################################
@@ -72,14 +73,14 @@ secret_rotation_federated_subjects = {
 
 address_space = ["10.20.0.0/16"]
 
-ddos_protection_plan = null           
+ddos_protection_plan = null
 
 app_gateway_cidr_block = "10.20.0.0/24"
 web_cidr_block         = "10.20.1.0/24"
 app_cidr_block         = "10.20.2.0/24"
 postgres_cidr_block    = "10.20.3.0/28"
 bastion_cidr_block     = "10.20.4.0/26"
-private_cidr_block     = "10.20.5.0/24"   # private endpoints subnet (KV + ACR)
+private_cidr_block     = "10.20.5.0/24" # private endpoints subnet (KV + ACR)
 
 # Declared as required by environment/dev/variables.tf but not currently
 # consumed by any module — set to an empty list so `plan` doesn't fail.
@@ -124,7 +125,7 @@ app_security_rules = [
     access                     = "Allow"
     protocol                   = "Tcp"
     source_port_range          = "*"
-    destination_port_range     = "8080"
+    destination_port_range     = "3000"
     source_address_prefix      = "10.20.1.0/24"
     destination_address_prefix = "*"
   },
@@ -240,7 +241,7 @@ bastion_security_rules = [
     source_address_prefix      = "VirtualNetwork"
     destination_address_prefix = "VirtualNetwork"
   },
-    {
+  {
     name                       = "Allow-BastionHostComms-In"
     priority                   = 130
     direction                  = "Inbound"
@@ -251,28 +252,28 @@ bastion_security_rules = [
     source_address_prefix      = "VirtualNetwork"
     destination_address_prefix = "VirtualNetwork"
   },
-{
-  name                       = "Allow-SSH-Out"
-  priority                   = 100
-  direction                  = "Outbound"
-  access                     = "Allow"
-  protocol                   = "Tcp"
-  source_port_range          = "*"
-  destination_port_range     = "22"
-  source_address_prefix      = "*"
-  destination_address_prefix = "VirtualNetwork"
-},
-{
-  name                       = "Allow-RDP-Out"
-  priority                   = 101
-  direction                  = "Outbound"
-  access                     = "Allow"
-  protocol                   = "Tcp"
-  source_port_range          = "*"
-  destination_port_range     = "3389"
-  source_address_prefix      = "*"
-  destination_address_prefix = "VirtualNetwork"
-},
+  {
+    name                       = "Allow-SSH-Out"
+    priority                   = 100
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "*"
+    destination_address_prefix = "VirtualNetwork"
+  },
+  {
+    name                       = "Allow-RDP-Out"
+    priority                   = 101
+    direction                  = "Outbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "3389"
+    source_address_prefix      = "*"
+    destination_address_prefix = "VirtualNetwork"
+  },
   {
     name                       = "Allow-AzureCloud-Out"
     priority                   = 110
@@ -284,7 +285,7 @@ bastion_security_rules = [
     source_address_prefix      = "*"
     destination_address_prefix = "AzureCloud"
   },
- 
+
   {
     name                       = "Allow-HTTP-Out"
     priority                   = 130
@@ -373,9 +374,9 @@ sku_gateway = "Standard_v2"
 # 7. Key Vault
 ##############################################################################
 
-sku_kv                         = "standard"
-purge_protection_enabled       = false   # true is safer for prod but blocks quick teardown in dev
-public_network_access_enabled  = true    # README's documented dev compromise for hosted-runner access
+sku_kv                        = "standard"
+purge_protection_enabled      = false # true is safer for prod but blocks quick teardown in dev
+public_network_access_enabled = true  # README's documented dev compromise for hosted-runner access
 
 ##############################################################################
 # 8. Azure Container Registry
@@ -390,9 +391,9 @@ sku_acr = "Premium"
 ##############################################################################
 
 postgres_version = "16"
-sku_postgres      = "B_Standard_B1ms"   # burstable, cheapest tier suitable for dev
-storage_mb        = 32768               # 32 GiB, the minimum allowed increment
-db_name           = "authdb"            # matches secure-login-demo's DB_NAME expectation
+sku_postgres     = "B_Standard_B1ms" # burstable, cheapest tier suitable for dev
+storage_mb       = 32768             # 32 GiB, the minimum allowed increment
+db_name          = "authdb"          # matches secure-login-demo's DB_NAME expectation
 
 # Display name for the Entra admin principal Terraform assigns (your own
 # az login identity, since entra_admin_object_id comes from data.azurerm_client_config.current)

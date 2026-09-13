@@ -30,6 +30,20 @@ resource "azurerm_role_assignment" "kv_secrets_user" {
   principal_id         = azurerm_user_assigned_identity.app.principal_id
 }
 
+locals {
+  rendered_cloud_init = templatefile("${path.module}/../../scripts/app-cloud-init.yaml", {
+    admin_username    = var.app_vm_metadata.admin_username
+    app_identity_id   = azurerm_user_assigned_identity.app.client_id
+    app_identity_name = azurerm_user_assigned_identity.app.name
+    acr_login_server  = var.acr_login_server
+    db_host           = var.db_host
+    db_name           = var.db_name
+    key_vault_uri     = var.key_vault_uri
+    frontend_url      = var.frontend_url
+    image_tag         = var.image_tag
+  })
+}
+
 # 3. Internal Load Balancer (ILB)
 resource "azurerm_lb" "ilb" {
   name                = "${var.vnet_name}-app-ilb"
@@ -55,7 +69,7 @@ resource "azurerm_lb_probe" "ilb" {
   name            = "api-health-probe"
   loadbalancer_id = azurerm_lb.ilb.id
   protocol        = "Http"
-  port            = 8080
+  port            = 3000
   request_path    = var.api_health_request_path
 }
 
@@ -63,8 +77,8 @@ resource "azurerm_lb_rule" "ilb" {
   name                           = "api-rule"
   loadbalancer_id                = azurerm_lb.ilb.id
   protocol                       = "Tcp"
-  frontend_port                  = 8080
-  backend_port                   = 8080
+  frontend_port                  = 3000
+  backend_port                   = 3000
   frontend_ip_configuration_name = "app-ilb-frontend"
   backend_address_pool_ids       = [azurerm_lb_backend_address_pool.ilb.id]
   probe_id                       = azurerm_lb_probe.ilb.id
@@ -133,7 +147,7 @@ resource "azurerm_linux_virtual_machine" "app" {
     version   = var.app_source_image.version
   }
 
-  custom_data = var.app_cloud_init
+  custom_data = base64encode(local.rendered_cloud_init)
 
   tags       = var.tags
   depends_on = [azurerm_role_assignment.acr_pull]

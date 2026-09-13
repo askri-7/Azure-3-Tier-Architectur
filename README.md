@@ -44,7 +44,7 @@ The app VM can run Docker Compose for backend services such as the API and Redis
 - Private DNS zones and private endpoints for PostgreSQL, Key Vault, and ACR.
 - NAT Gateway for app subnet outbound connectivity.
 - Azure Bastion for administrative access.
-- User assigned identities for the app runtime, infrastructure pipeline, image pipeline, migration pipeline, and secret rotation pipeline.
+- User assigned identities for the app runtime, infrastructure pipeline, image pipeline, deploy pipeline, and secret rotation pipeline.
 - Cloud-init bootstrap scripts that install Docker on both VMs.
 
 ## Repository Layout
@@ -65,7 +65,7 @@ GitHub Actions uses OIDC. Azure client secrets are not required for the pipeline
 - Infrastructure identity: Terraform plan and apply, state access, and infrastructure changes.
 - Image identity: pushes application images to ACR.
 - App runtime identity: pulls images, reads approved Key Vault secrets, and connects to PostgreSQL.
-- Migration identity: runs Prisma migrations and seed operations.
+- Deploy identity: invokes Azure Run Command on the app VM only, where migrations run inside the backend container.
 - Secret rotation identity: creates new Key Vault secret versions.
 
 PostgreSQL password authentication is disabled. Application and migration access use short lived Microsoft Entra access tokens. Database permissions are initialized with `scripts/setup_app_permissions.sql` by the configured PostgreSQL Entra administrator.
@@ -74,7 +74,7 @@ PostgreSQL password authentication is disabled. Application and migration access
 
 - `iac-pipeline.yml`: Gitleaks, Checkov, Terraform formatting, TFLint, validate, plan, and protected apply.
 - `app-ci-cd.yml`: builds and scans an application image and pushes an immutable Git SHA tag to ACR.
-- `database-migration.yml`: runs Prisma migration and seed using the migration identity.
+- `deploy.yml`: invokes the app VM through Azure Run Command, updates the image tag, restarts Compose, and runs Prisma migrations on the VM.
 - `secret-rotation.yml`: creates a new Key Vault secret version using the rotation identity.
 
 The application image pipeline builds and publishes the image. A separate deployment command is still required to make the app VM pull and run that new image.
@@ -94,9 +94,9 @@ production state.
 
 ## Hosted Runner Network Model
 
-The migration and secret rotation workflows use GitHub hosted runners, not self hosted runners. PostgreSQL and Key Vault public network access are enabled so those workflows can reach Azure services.
+The deploy and secret rotation workflows use GitHub hosted runners, not self hosted runners. The deploy runner does not connect to PostgreSQL directly. It uses Azure Run Command to execute deployment and migration inside the app VM, which has private VNet access to PostgreSQL.
 
-This is a development compromise. PostgreSQL firewall rules must allow the runner source addresses, and public access increases the network exposure. Entra authentication still applies and PostgreSQL passwords remain disabled. A private runner or another private execution service is preferred for production.
+Key Vault public access remains enabled for the hosted rotation workflow. PostgreSQL remains private because VNet integrated Flexible Server does not support public network access with delegated subnet configuration. Entra authentication still applies and PostgreSQL passwords remain disabled.
 
 ## Validation
 

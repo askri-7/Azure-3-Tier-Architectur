@@ -1,0 +1,50 @@
+name: Deploy and migrate
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: Backend image tag to deploy
+        default: latest
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AZURE_RESOURCE_GROUP: isra-rg-01
+  APP_VM_NAME: internship-dev-app-vm
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.DEPLOY_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Pull image, restart stack, and run migration on app VM
+        env:
+          IMAGE_TAG: ${{ inputs.image_tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          az vm run-command invoke \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --name "$APP_VM_NAME" \
+            --command-id RunShellScript \
+            --scripts "
+              set -e
+              cd /opt/app/compose
+              sed -i 's/^IMAGE_TAG=.*/IMAGE_TAG=${IMAGE_TAG}/' .env
+              docker compose --env-file .env -f docker-compose.app.prod.yml pull
+              docker compose --env-file .env -f docker-compose.app.prod.yml up -d
+              sleep 10
+              docker compose --env-file .env -f docker-compose.app.prod.yml exec -T backend npx prisma migrate deploy
+            "

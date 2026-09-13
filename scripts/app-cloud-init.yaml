@@ -20,6 +20,7 @@ write_files:
           "max-file": "3"
         }
       }
+
   - path: /usr/local/sbin/prepare-app-volumes.sh
     permissions: "0755"
     content: |
@@ -30,12 +31,111 @@ write_files:
       install -d -m 0755 /opt/app/compose/redis-data
       install -d -m 0755 /var/lib/docker
 
+  - path: /opt/app/compose/docker-compose.app.prod.yml
+    permissions: "0644"
+    content: |
+      services:
+        backend:
+          image: $${ACR_LOGIN_SERVER}/$${BACKEND_IMAGE_NAME:-backend}:$${IMAGE_TAG:?IMAGE_TAG must be an immutable Git SHA}
+          restart: unless-stopped
+          environment:
+            PORT: "3000"
+            NODE_ENV: production
+            DB_AUTH_MODE: entra
+            DB_HOST: $${DB_HOST:?DB_HOST is required}
+            DB_PORT: $${DB_PORT:-5432}
+            DB_NAME: $${DB_NAME:?DB_NAME is required}
+            DB_PRINCIPAL: $${DB_PRINCIPAL:?DB_PRINCIPAL is required}
+            AZURE_KEY_VAULT_URL: $${AZURE_KEY_VAULT_URL:?AZURE_KEY_VAULT_URL is required}
+            FRONTEND_URL: $${FRONTEND_URL:?FRONTEND_URL is required}
+            REDIS_HOST: redis
+            REDIS_PORT: "6379"
+          ports:
+            - "$${APP_VM_BIND_ADDRESS:-0.0.0.0}:3000:3000"
+          depends_on:
+            redis:
+              condition: service_healthy
+          deploy:
+            resources:
+              limits:
+                cpus: "1.0"
+                memory: 512M
+          logging:
+            driver: json-file
+            options:
+              max-size: "10m"
+              max-file: "3"
+
+        redis:
+          image: redis:7-alpine
+          restart: unless-stopped
+          volumes:
+            - redis-data:/data
+          command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+          healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 10s
+            timeout: 3s
+            retries: 5
+          deploy:
+            resources:
+              limits:
+                memory: 256M
+          logging:
+            driver: json-file
+            options:
+              max-size: "10m"
+              max-file: "3"
+
+      volumes:
+        redis-data:
+
+  - path: /opt/app/compose/.env
+    permissions: "0600"
+    content: |
+      ACR_LOGIN_SERVER=${acr_login_server}
+      BACKEND_IMAGE_NAME=backend
+      IMAGE_TAG=${image_tag}
+      DB_HOST=${db_host}
+      DB_PORT=5432
+      DB_NAME=${db_name}
+      DB_PRINCIPAL=${app_identity_name}
+      AZURE_KEY_VAULT_URL=${key_vault_uri}
+      FRONTEND_URL=${frontend_url}
+
+  - path: /usr/local/sbin/deploy-app.sh
+    permissions: "0755"
+    content: |
+      #!/usr/bin/env bash
+      set -euo pipefail
+
+      for i in $(seq 1 30); do
+        az login --identity --client-id "${app_identity_id}" && break
+        echo "Waiting for managed identity to become available... ($${i}/30)"
+        sleep 5
+      done
+
+      az acr login --name "$(echo ${acr_login_server} | cut -d'.' -f1)"
+
+      cd /opt/app/compose
+      docker compose --env-file .env -f docker-compose.app.prod.yml pull
+      docker compose --env-file .env -f docker-compose.app.prod.yml up -d
+
+      echo "Waiting for backend container before running migrations..."
+      sleep 20
+
+      docker compose --env-file .env -f docker-compose.app.prod.yml \
+        exec -T backend npx prisma migrate deploy
+
+      docker compose --env-file .env -f docker-compose.app.prod.yml \
+        exec -T backend npx prisma db seed || echo "Seed step skipped or already applied."
+
 runcmd:
   - systemctl enable --now docker
   - /usr/local/sbin/prepare-app-volumes.sh
   - usermod -aG docker ${admin_username}
   - systemctl restart docker
-  - docker version
-  - docker compose version || true
+  - curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+  - /usr/local/sbin/deploy-app.sh
 
-final_message: "App VM Docker bootstrap completed. Compose and application directories are on the OS disk."
+final_message: "App VM bootstrap, deploy, and migration completed."
